@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+experiments.db
+.edge-*/
+*-check.png
+.env
+.env.*
+!.env.example
+*.log
+.vscode/
