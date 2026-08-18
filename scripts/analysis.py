@@ -66,6 +66,8 @@ def norm_cdf(z):
 
 
 def gser(a, x):
+    if x == 0:
+        return 0.0
     gln = math.lgamma(a)
     ap = a
     total = 1.0 / a
@@ -111,6 +113,8 @@ def gammq(a, x):
 
 
 def chisq_sf(x, df):
+    if x <= 0:
+        return 1.0
     return gammq(df / 2.0, x / 2.0)
 
 
@@ -218,9 +222,23 @@ def table_main(records):
         sr = (sum(successes) / len(successes) * 100) if successes else float("nan")
         cost_mean, cost_sd = mean(costs), sd(costs)
         time_mean, time_sd = mean(times), sd(times)
-        cv = (q_sd / q_mean * 100) if q_mean else float("nan")
-        fmt = lambda m, s: f"{m:.2f}±{s:.2f}" if isinstance(m, float) and not math.isnan(m) and isinstance(s, float) and not math.isnan(s) else "—"
-        lines.append(f"| {b} | {len(scores)} | {fmt(q_mean, q_sd)} | [{lo:.2f}, {hi:.2f}] | {sr:.1f} | {fmt(cost_mean, cost_sd)} | {fmt(time_mean, time_sd)} | {cv:.1f} |")
+        cv = (q_sd / q_mean * 100) if q_mean and not math.isnan(q_sd) else float("nan")
+
+        def fmt(m, s):
+            if not isinstance(m, float) or math.isnan(m):
+                return "—"
+            if isinstance(s, float) and not math.isnan(s):
+                return f"{m:.2f}±{s:.2f}"
+            return f"{m:.2f}"
+
+        def fmt_ci(m_lo, m_hi):
+            if not isinstance(m_lo, float) or math.isnan(m_lo) or not isinstance(m_hi, float) or math.isnan(m_hi):
+                return "—"
+            return f"[{m_lo:.2f}, {m_hi:.2f}]"
+
+        cv_text = f"{cv:.1f}" if not math.isnan(cv) else "—"
+        sr_text = f"{sr:.1f}" if not math.isnan(sr) else "—"
+        lines.append(f"| {b} | {len(scores)} | {fmt(q_mean, q_sd)} | {fmt_ci(lo, hi)} | {sr_text} | {fmt(cost_mean, cost_sd)} | {fmt(time_mean, time_sd)} | {cv_text} |")
     return "\n".join(lines)
 
 
