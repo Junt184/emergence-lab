@@ -75,6 +75,10 @@
     .error-banner { display:none; margin-bottom:12px; padding:9px 11px; border-left:3px solid var(--danger); background:#fff3f4; color:#9b3541; font-size:11px; white-space:pre-wrap; }
     .error-banner.show { display:block; }
     .experiment-controls { display:grid; grid-template-columns:1.15fr .9fr .9fr; gap:10px; margin:0 0 18px; }
+    .experiment-controls.task-bank-row { grid-template-columns:1.5fr .8fr auto; margin:0 0 10px; }
+    .task-note { margin:0 0 16px; padding:9px 11px; background:#f4fdfb; border-left:3px solid var(--teal); color:#356a62; font-size:11px; white-space:pre-wrap; }
+    .mini-input { border:1px solid var(--line); border-radius:7px; background:#fff; color:var(--ink); height:32px; padding:0 9px; outline:none; width:90px; }
+    .mini-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
     .compact-field { display:flex; flex-direction:column; gap:5px; color:var(--muted); font-size:11px; }
     .compact-field select { border:1px solid var(--line); border-radius:7px; background:#fff; color:var(--ink); height:32px; padding:0 9px; outline:none; }
     .compact-field select:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
@@ -347,6 +351,16 @@
                 <select id="perturbSelect"><option value="none">无扰动 · 稳态运行</option><option value="D1">D1 · 中途加约束</option><option value="D2">D2 · 关键资料冲突</option><option value="D3">D3 · Agent 输出低质</option><option value="D4">D4 · 工具调用失败</option></select>
               </label>
             </div>
+            <div class="experiment-controls task-bank-row">
+              <label class="compact-field">论文任务库（30 个任务）
+                <select id="taskSelect"><option value="">不使用任务库 · 自定义问题</option></select>
+              </label>
+              <label class="compact-field">批量重复运行次数
+                <input class="mini-input" id="repeatCount" type="number" min="1" max="20" value="1" />
+              </label>
+              <button class="outline-btn" type="button" id="batchBtn">批量运行</button>
+            </div>
+            <div class="task-note" id="taskNote">任务库内置 12 个代码修复、10 个信息整合与 8 个动态扰动任务。选择任务后会自动填充研究问题、耦合度与扰动条件。</div>
             <div class="study-note" id="studyNote">B4 用于检验动态交互、共享环境、反馈与重分配的额外收益；结果会与 B0–B3 基线保持同一问题、同一预算口径。</div>
             <div class="section-title">研究问题</div>
             <textarea id="scenario" class="scenario">为一个 20 人团队选择下季度的协作工具。请在预算有限、迁移成本可控的前提下，给出可执行的推荐方案，并说明关键权衡。</textarea>
@@ -425,6 +439,6 @@
     </main>
   </div>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=20260816-3"></script>
+  <script src="app.js?v=20260818-1"></script>
 </body>
 </html>

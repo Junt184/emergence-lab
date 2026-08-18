@@ -44,6 +44,58 @@ PERTURBATIONS = {
     "D4": "一次外部工具调用失败，要求提供降级路径",
 }
 
+TASKS_FILE = ROOT / "tasks.json"
+
+
+def load_task_bank() -> list[dict[str, Any]]:
+    if not TASKS_FILE.exists():
+        return []
+    try:
+        with TASKS_FILE.open(encoding="utf-8") as fh:
+            data = json.load(fh)
+        tasks = data.get("tasks", data if isinstance(data, list) else [])
+        return [task for task in tasks if isinstance(task, dict)]
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+TASK_BANK: list[dict[str, Any]] = load_task_bank()
+TASK_BY_ID: dict[str, dict[str, Any]] = {task.get("id"): task for task in TASK_BANK if task.get("id")}
+
+
+def task_summaries() -> list[dict[str, Any]]:
+    return [
+        {
+            "id": task.get("id"),
+            "type": task.get("type"),
+            "title": task.get("title"),
+            "difficulty": task.get("difficulty"),
+            "coupling": task.get("coupling"),
+            "perturbation": task.get("perturbation"),
+            "success_criteria": task.get("success_criteria"),
+            "problem": task.get("problem"),
+        }
+        for task in TASK_BANK
+    ]
+
+
+def apply_task_to_config(config: dict[str, Any], task_id: str) -> dict[str, Any]:
+    task = TASK_BY_ID.get(task_id)
+    if not task:
+        raise ValueError(f"任务不存在: {task_id}")
+    merged = dict(config)
+    merged["task_id"] = task_id
+    merged["problem"] = str(task.get("problem") or merged.get("problem") or "").strip()
+    merged["task_type"] = task.get("type")
+    merged["task_title"] = task.get("title")
+    merged["coupling"] = task.get("coupling") or merged.get("coupling", "low")
+    merged["perturbation"] = task.get("perturbation") or merged.get("perturbation", "none")
+    if task.get("perturbation_message"):
+        merged["perturbation_message"] = task.get("perturbation_message")
+    if task.get("success_criteria"):
+        merged["success_criteria"] = task.get("success_criteria")
+    return merged
+
 MODEL_PROFILES: dict[str, dict[str, int]] = {
     "deepseek-v4-flash": {"max_input_tokens": 128000, "default_output_tokens": 8192, "max_output_tokens": 8192},
 }
@@ -178,6 +230,24 @@ def response_diagnostics(data: dict[str, Any], api_key: str = "") -> dict[str, A
         "response_preview": preview,
     }
 
+def _is_loopback_url(url: str) -> bool:
+    host = (urlparse(url).hostname or "").lower()
+    return host in {"localhost", "::1"} or host.startswith("127.")
+
+
+def _open_url(request: urllib.request.Request, timeout: int):
+    """Open a request, bypassing HTTP(S) proxy for loopback addresses.
+
+    Many local OpenAI-compatible servers (Ollama, vLLM, LM Studio) listen on
+    127.0.0.1. Python's urllib would otherwise route localhost through the
+    system proxy in some environments and return 502.
+    """
+    if _is_loopback_url(request.full_url):
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        return opener.open(request, timeout=timeout)
+    return urllib.request.urlopen(request, timeout=timeout)
+
+
 
 class RunContext:
     def __init__(self, run_id: str):
@@ -306,7 +376,7 @@ class ModelClient:
             for url in urls:
                 attempted.append(url)
                 try:
-                    with urllib.request.urlopen(make_request(url), timeout=self.timeout) as response:
+                    with _open_url(make_request(url), self.timeout) as response:
                         response_data = json.loads(response.read().decode("utf-8"))
                     if not isinstance(response_data, dict):
                         raise RuntimeError(f"模型接口 {url} 返回的 JSON 不是对象")
@@ -321,7 +391,7 @@ class ModelClient:
                     if json_mode and exc.code in {400, 422} and "response_format" in payload:
                         payload.pop("response_format", None)
                         try:
-                            with urllib.request.urlopen(make_request(url), timeout=self.timeout) as response:
+                            with _open_url(make_request(url), self.timeout) as response:
                                 response_data = json.loads(response.read().decode("utf-8"))
                             if not isinstance(response_data, dict):
                                 raise RuntimeError("返回的 JSON 不是对象")
@@ -444,13 +514,21 @@ def role_system(role_name: str, specialty: str) -> str:
 def task_prompt(config: dict[str, Any], extra: str = "") -> str:
     coupling = "高耦合、存在跨步骤依赖" if config.get("coupling") == "high" else "低耦合、子任务可并行"
     perturbation = PERTURBATIONS.get(str(config.get("perturbation") or "none"), "无额外扰动")
-    return (
+    perturbation_message = str(config.get("perturbation_message") or "").strip()
+    success_criteria = str(config.get("success_criteria") or "").strip()
+    prompt = (
         f"研究问题：\n{config['problem']}\n\n"
         f"任务结构：{coupling}\n"
         f"扰动条件：{perturbation}\n"
         "请给出具体、可验证的分析。最终建议必须包含选择、关键权衡、执行步骤和失败退出条件。"
-        + (f"\n\n补充上下文：\n{extra}" if extra else "")
     )
+    if perturbation_message:
+        prompt += f"\n\n扰动注入说明（实验处理）：\n{perturbation_message}"
+    if success_criteria:
+        prompt += f"\n\n任务的客观成功标准（供产出时对照）：\n{success_criteria}"
+    if extra:
+        prompt += f"\n\n补充上下文：\n{extra}"
+    return prompt
 
 
 def call_role(client: ModelClient, config: dict[str, Any], role: tuple[str, str, str], extra: str = "") -> dict[str, Any]:
@@ -524,13 +602,16 @@ def judge_candidates(client: ModelClient, config: dict[str, Any], candidates: li
 
 
 def evaluate_output(client: ModelClient, config: dict[str, Any], final_answer: str) -> dict[str, Any]:
+    success_criteria = str(config.get("success_criteria") or "未提供客观成功标准，请仅按通用质量标准判断").strip()
     prompt = (
         f"问题：{config['problem']}\n\n待评估答案：\n{final_answer[:10000]}\n\n"
+        f"任务的客观成功标准：\n{success_criteria}\n\n"
         "作为独立评估器，按四项各 0-25 分评分：约束覆盖、可执行性、一致性、解释充分度。"
         "不要因文风或长度奖励答案。仅返回 JSON："
-        "{\"score\":0-100,\"confidence\":0-1,\"dimensions\":{" 
+        "{\"success\":true或false,\"score\":0-100,\"confidence\":0-1,\"dimensions\":{"
         "\"constraint_coverage\":0-25,\"actionability\":0-25,\"consistency\":0-25,\"explanation\":0-25},"
-        "\"summary\":\"一句话评语\"}"
+        "\"summary\":\"一句话评语\"}。"
+        "success 表示最终答案是否达到客观成功标准。"
     )
     raw = client.chat("独立评估器", role_system("独立评估器", "使用固定量表盲评最终答案"), prompt, temperature=0, json_mode=True, max_tokens=600)
     data = safe_json(raw)
@@ -539,6 +620,8 @@ def evaluate_output(client: ModelClient, config: dict[str, Any], final_answer: s
         data["score"] = max(0.0, min(100.0, float(score)))
     except (TypeError, ValueError):
         data["score"] = None
+    if "success" not in data or not isinstance(data.get("success"), bool):
+        data["success"] = None
     return data
 
 
@@ -651,8 +734,12 @@ def run_single_experiment(config: dict[str, Any], client: ModelClient) -> dict[s
     }
     return {
         "baseline": baseline,
+        "task_id": config.get("task_id"),
+        "task_type": config.get("task_type"),
+        "task_title": config.get("task_title"),
         "final_answer": final_answer,
         "evaluation": evaluation,
+        "success": evaluation.get("success"),
         "votes": votes,
         "candidate_count": len(candidates),
         "candidates": candidates,
@@ -748,12 +835,65 @@ def create_run(config: dict[str, Any], mode: str) -> str:
     return run_id
 
 
+def create_batch(config: dict[str, Any], mode: str, repeats: int) -> list[str]:
+    repeats = max(1, min(100, int(repeats or 1)))
+    run_ids: list[str] = []
+    for _ in range(repeats):
+        run_id = create_run(config, mode)
+        run_ids.append(run_id)
+    return run_ids
+
+
+def export_runs_json() -> list[dict[str, Any]]:
+    rows = db_query("SELECT * FROM runs ORDER BY created_at DESC")
+    return [serialize_db_run(row) for row in rows]
+
+
+def export_runs_csv() -> str:
+    rows = db_query("SELECT * FROM runs ORDER BY created_at DESC")
+    header = [
+        "run_id", "status", "mode", "baseline", "problem", "task_id", "task_type",
+        "agent_count", "model", "score", "success", "prompt_tokens", "completion_tokens",
+        "total_tokens", "usage_missing", "duration_seconds", "created_at", "updated_at", "error",
+    ]
+
+    def field(row: sqlite3.Row, name: str) -> str:
+        if name == "run_id":
+            return str(row["id"])
+        if name in {"prompt_tokens", "completion_tokens", "total_tokens", "usage_missing"}:
+            return str(row[name])
+        if name == "score":
+            return "" if row["score"] is None else str(row["score"])
+        if name == "success":
+            result = json.loads(row["result_json"]) if row["result_json"] else {}
+            value = result.get("success")
+            return "" if value is None else ("true" if value else "false")
+        if name in {"agent_count", "model"}:
+            config = json.loads(row["config_json"] or "{}")
+            return str(config.get(name, ""))
+        if name == "task_id":
+            config = json.loads(row["config_json"] or "{}")
+            return str(config.get("task_id", ""))
+        if name == "task_type":
+            config = json.loads(row["config_json"] or "{}")
+            return str(config.get("task_type", ""))
+        return str(row[name] or "")
+
+    lines = [",".join(f'"{h}"' for h in header)]
+    for row in rows:
+        lines.append(",".join(f'"{field(row, h).replace(chr(34), chr(34) + chr(34))}"' for h in header))
+    return "\n".join(lines)
+
+
 def serialize_db_run(row: sqlite3.Row, include_events: bool = False) -> dict[str, Any]:
+    config = json.loads(row["config_json"] or "{}")
+    result_json = json.loads(row["result_json"]) if row["result_json"] else {}
     result = {
         "id": row["id"], "created_at": row["created_at"], "updated_at": row["updated_at"], "status": row["status"], "mode": row["mode"], "baseline": row["baseline"], "problem": row["problem"],
-        "config": json.loads(row["config_json"] or "{}"), "result": json.loads(row["result_json"]) if row["result_json"] else None,
+        "task_id": config.get("task_id"), "task_type": config.get("task_type"), "task_title": config.get("task_title"),
+        "config": config, "result": result_json,
         "usage": {"prompt_tokens": row["prompt_tokens"], "completion_tokens": row["completion_tokens"], "total_tokens": row["total_tokens"], "usage_missing": row["usage_missing"]},
-        "duration_seconds": row["duration_seconds"], "score": row["score"], "error": row["error"],
+        "duration_seconds": row["duration_seconds"], "score": row["score"], "success": result_json.get("success") if isinstance(result_json, dict) else None, "error": row["error"],
     }
     if include_events:
         event_rows = db_query("SELECT created_at, kind, agent, message, tokens, payload_json FROM events WHERE run_id=? ORDER BY id", (row["id"],))
@@ -793,6 +933,31 @@ class Handler(SimpleHTTPRequestHandler):
             profile = model_profile(default_model)
             self.send_json(200, {"base_url": os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1", "model": default_model, "max_input_tokens": int(os.getenv("OPENAI_MAX_INPUT_TOKENS") or profile["max_input_tokens"]), "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS") or profile["default_output_tokens"]), "has_server_key": bool(os.getenv("OPENAI_API_KEY"))})
             return
+        if path == "/api/tasks":
+            self.send_json(200, task_summaries())
+            return
+        task_match = re.fullmatch(r"/api/tasks/([A-Z0-9-]+)", path)
+        if task_match:
+            task = TASK_BY_ID.get(task_match.group(1))
+            if not task:
+                self.send_json(404, {"error": "任务不存在"})
+                return
+            self.send_json(200, task)
+            return
+        if path == "/api/export":
+            format_name = (urlparse(self.path).query or "").split("format=")[-1].split("&")[0].lower()
+            if format_name == "json":
+                self.send_json(200, export_runs_json())
+            else:
+                csv_text = "\ufeff" + export_runs_csv()
+                body = csv_text.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/csv; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.send_header("Content-Disposition", "attachment; filename=emergence-runs.csv")
+                self.end_headers()
+                self.wfile.write(body)
+            return
         if path == "/api/runs":
             rows = db_query("SELECT * FROM runs ORDER BY created_at DESC LIMIT 50")
             self.send_json(200, [serialize_db_run(row) for row in rows])
@@ -821,10 +986,24 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             body = self.read_json()
             if path == "/api/runs":
-                self.send_json(202, {"run_id": create_run(body, "single")})
+                task_id = str(body.get("task_id") or "").strip()
+                config = apply_task_to_config(body, task_id) if task_id else body
+                self.send_json(202, {"run_id": create_run(config, "single")})
+                return
+            if path == "/api/runs/batch":
+                task_id = str(body.get("task_id") or "").strip()
+                config = apply_task_to_config(body, task_id) if task_id else body
+                mode = str(body.get("mode") or "single")
+                if mode not in {"single", "compare"}:
+                    raise ValueError("mode 只能是 single 或 compare")
+                repeats = int(body.get("repeats") or 1)
+                run_ids = create_batch(config, mode, repeats)
+                self.send_json(202, {"run_ids": run_ids, "repeats": len(run_ids), "mode": mode})
                 return
             if path == "/api/compare":
-                self.send_json(202, {"run_id": create_run(body, "compare")})
+                task_id = str(body.get("task_id") or "").strip()
+                config = apply_task_to_config(body, task_id) if task_id else body
+                self.send_json(202, {"run_id": create_run(config, "compare")})
                 return
             self.send_json(404, {"error": "接口不存在"})
         except (ValueError, json.JSONDecodeError) as exc:

@@ -9,6 +9,9 @@
 - `tests/`：响应解析、Token 记录和截断重试测试
 - `docs/`：研究论文和项目参考资料
 - `experiments.db`：本地运行历史，不提交到 Git
+- `tasks.json`：论文任务库（30 个任务）
+- `scripts/analysis.py`：统计检验与论文表格生成脚本
+- `reports/`：分析报告输出目录
 
 ## 启动
 
@@ -42,3 +45,33 @@ python server.py
 - 可在模型设置中设置最大输入上下文和单次最大输出 Token；可选协作阶段超时会保留已有答案并继续，而不是让整次实验失败
 
 “运行 B0-B4 对比”会实际执行五组条件，消耗明显高于单次运行。
+
+## 论文任务库
+
+`tasks.json` 内置 30 个任务：
+
+- 代码修复（CR）：12 个，可客观验证的小型 bug 修复与单元测试生成
+- 信息整合与规划（II）：10 个，多来源归纳与约束下方案设计
+- 动态扰动（DT）：8 个，D1–D4 每类 2 个，执行中途注入扰动
+
+在实验配置中选择任务后，研究问题、耦合度与扰动条件会自动填充。也可以留空使用自定义问题。
+
+## 批量运行与导出
+
+- 页面中设置“批量重复运行次数”后点击“批量运行”，会创建多个真实运行任务
+- 点击“导出记录”会下载完整 CSV（包含 task_id、success 等扩展字段）
+- 服务端接口：`POST /api/runs/batch`、`GET /api/export?format=csv|json`、`GET /api/tasks`
+
+## 统计检验与论文表格
+
+```powershell
+python scripts/analysis.py
+```
+
+脚本读取 `experiments.db` 中所有 `completed` 记录，自动生成：
+
+- 表 5-1 风格的主结果表：Q、SR、Cost、Time、Stab CV
+- 表 5-7 风格的任务质量 Q 统计检验：Kruskal–Wallis 与成对 Mann–Whitney U、效应量
+- Cost / Time 的组间 Kruskal–Wallis 检验
+
+报告写入 `reports/analysis_tables.md`，并在终端输出。Rob / Adapt 需要专门的扰动前后对照实验，当前脚本不强行估计。

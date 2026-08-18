@@ -3,7 +3,7 @@
 
   const $ = (selector, root) => (root || document).querySelector(selector);
   const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
-  const state = { runId: null, timer: null, config: {}, runs: [], selectedCall: 0 };
+  const state = { runId: null, timer: null, config: {}, runs: [], selectedCall: 0, tasks: [], batchRunIds: [] };
   const roleNames = ['策划', '研究', '用户', '财务', '风险', '执行', '批判', '验证', '评审', '裁判'];
   const roleDescriptions = ['拆解目标与约束', '补充事实与方案', '代入实际使用者', '量化成本与回报', '寻找失败路径', '转化执行步骤', '检查逻辑与偏差', '验证约束与结果', '比较方案与修正', '独立量表裁决'];
   const colors = ['#6477d7', '#5b9b88', '#bf8354', '#9b72b1', '#4f8ea7', '#c4656f', '#6c7b8d', '#4f9b78', '#8766ad', '#b17c3e'];
@@ -15,6 +15,7 @@
     B4: ['vote', 'debate', 'reflect', 'memory', 'judge', 'redistribute']
   };
   const baselineNames = { B0: '单 Agent', B1: '多次采样', B2: '同质并行', B3: '固定流水线', B4: '动态协作' };
+  const taskTypeNames = { code_repair: '代码修复', information_integration: '信息整合', dynamic_perturbation: '动态扰动' };
   const modelProfiles = {
     'deepseek-v4-flash': { maxInputTokens: 128000, maxOutputTokens: 8192 }
   };
@@ -80,6 +81,40 @@
   function selectedCapabilities() {
     return $$('.capability input:checked').map((input) => input.dataset.cap);
   }
+  function currentTask() {
+    const id = $('#taskSelect').value;
+    return state.tasks.find((task) => task.id === id) || null;
+  }
+  function renderTaskOptions() {
+    const select = $('#taskSelect');
+    const groups = [
+      { key: 'code_repair', label: '代码修复（12）' },
+      { key: 'information_integration', label: '信息整合与规划（10）' },
+      { key: 'dynamic_perturbation', label: '动态扰动（8）' }
+    ];
+    select.innerHTML = '<option value="">不使用任务库 · 自定义问题</option>' + groups.map((group) => {
+      const options = state.tasks.filter((task) => task.type === group.key).map((task) => `<option value="${escapeHtml(task.id)}">${escapeHtml(task.id)} · ${escapeHtml(task.title)}</option>`).join('');
+      return options ? `<optgroup label="${group.label}">${options}</optgroup>` : '';
+    }).join('');
+  }
+  function applySelectedTask() {
+    const task = currentTask();
+    if (!task) { $('#taskNote').textContent = '任务库内置 12 个代码修复、10 个信息整合与 8 个动态扰动任务。选择任务后会自动填充研究问题、耦合度与扰动条件。'; return; }
+    $('#scenario').value = task.problem || $('#scenario').value;
+    $('#couplingSelect').value = task.coupling || 'low';
+    $('#perturbSelect').value = task.perturbation || 'none';
+    const typeName = taskTypeNames[task.type] || task.type || '综合';
+    $('#taskNote').textContent = `${task.id} · ${typeName} · ${task.coupling === 'high' ? '高耦合' : '低耦合'} · ${task.perturbation ? '扰动 ' + task.perturbation : '无扰动'}\n成功标准：${task.success_criteria || '由裁判模型按通用质量标准评估'}`;
+    updateHint();
+  }
+  async function loadTasks() {
+    try {
+      state.tasks = await api('/api/tasks');
+      renderTaskOptions();
+    } catch (error) {
+      $('#taskNote').textContent = '任务库加载失败：' + error.message;
+    }
+  }
   function renderRoster() {
     const count = Number($('#agentRange').value || 5);
     $('#agentValue').textContent = count;
@@ -90,7 +125,8 @@
     const baseline = $('#baselineSelect').value;
     const coupling = $('#couplingSelect').value === 'high' ? '高耦合' : '低耦合';
     const perturb = $('#perturbSelect').value;
-    $('#runHint').textContent = `真实运行 · ${baseline} · ${coupling} · ${perturb === 'none' ? '无扰动' : perturb} · Token 以接口 usage 为准`;
+    const taskId = $('#taskSelect').value;
+    $('#runHint').textContent = `真实运行 · ${baseline} · ${coupling} · ${perturb === 'none' ? '无扰动' : perturb}${taskId ? ' · ' + taskId : ''} · Token 以接口 usage 为准`;
     $('#voteSummary').textContent = baseline === 'B0' ? '单 Agent · 不启用投票' : '等待真实投票';
   }
   function applyBaseline() {
@@ -114,6 +150,7 @@
   function configPayload() {
     return {
       problem: $('#scenario').value.trim(),
+      task_id: $('#taskSelect').value,
       baseline: $('#baselineSelect').value,
       agent_count: Number($('#agentRange').value),
       capabilities: selectedCapabilities(),
@@ -130,6 +167,7 @@
   function setRunning(running) {
     $('#runBtn').disabled = running;
     $('#compareBtn').disabled = running;
+    $('#batchBtn').disabled = running;
     $('#resetBtn').disabled = running;
     $('#liveBadge').textContent = running ? '运行中' : ($('#liveBadge').textContent === '运行中' ? '待运行' : $('#liveBadge').textContent);
     if (running) { $('#liveBadge').style.background = 'var(--orange-soft)'; $('#liveBadge').style.color = 'var(--orange)'; }
@@ -161,6 +199,49 @@
       setError(error.message);
     }
   }
+  async function startBatch(mode) {
+    const payload = configPayload();
+    const repeats = Number($('#repeatCount').value || 1);
+    if (!payload.problem) { setError('研究问题不能为空。'); return; }
+    if (!payload.model) { $('#settingsPanel').classList.add('open'); setError('请先设置模型名称。'); return; }
+    if (mode === 'compare' && !window.confirm(`将批量执行 B0–B4 对比 ${repeats} 次，共 ${repeats * 5} 个真实条件，Token 消耗和耗时约为单次的 ${repeats * 5} 倍。继续吗？`)) return;
+    if (mode === 'single' && !window.confirm(`将对当前条件重复运行 ${repeats} 次，Token 消耗和耗时约为单次的 ${repeats} 倍。继续吗？`)) return;
+    setError('');
+    setBackendStatus('批量任务创建中', 'working');
+    try {
+      const created = await api('/api/runs/batch', { method: 'POST', body: JSON.stringify(Object.assign({}, payload, { mode, repeats })) });
+      state.batchRunIds = created.run_ids || [];
+      showToast(`已创建 ${state.batchRunIds.length} 个批量运行`);
+      pollBatch();
+    } catch (error) {
+      setBackendStatus('批量创建失败', 'error');
+      setError(error.message);
+    }
+  }
+  async function pollBatch() {
+    if (!state.batchRunIds.length) return;
+    try {
+      const runs = await api('/api/runs');
+      const pending = state.batchRunIds.filter((runId) => {
+        const run = runs.find((item) => item.id === runId);
+        return run && run.status !== 'completed' && run.status !== 'failed';
+      });
+      state.runs = runs;
+      renderHistory();
+      if (pending.length) {
+        $('#backendStatus').textContent = `批量运行中 · 剩余 ${pending.length} 个`;
+        window.setTimeout(pollBatch, 2000);
+      } else {
+        const failed = state.batchRunIds.filter((runId) => { const run = runs.find((item) => item.id === runId); return run && run.status === 'failed'; });
+        setBackendStatus('后端已连接', 'ok');
+        showToast(`批量运行结束 · ${state.batchRunIds.length - failed.length} 成功 / ${failed.length} 失败`);
+        state.batchRunIds = [];
+      }
+    } catch (error) {
+      window.setTimeout(pollBatch, 2500);
+    }
+  }
+
   async function pollRun() {
     if (!state.runId) return;
     try {
@@ -309,11 +390,13 @@
     $$('#recordBody tr[data-run-id]').forEach((row) => row.addEventListener('click', async () => { try { const run = await api(`/api/runs/${row.dataset.runId}`); renderLive(run); window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (error) { setError(error.message); } }));
   }
   async function loadHistory() { try { state.runs = await api('/api/runs'); renderHistory(); } catch (error) { setBackendStatus('历史读取失败', 'error'); } }
-  function exportHistory() {
-    const rows = state.runs.map((run) => [run.id, run.status, run.mode === 'compare' ? 'B0-B4' : run.baseline, run.config && run.config.agent_count, run.usage && run.usage.total_tokens, run.score, run.duration_seconds, run.created_at]);
-    if (!rows.length) { showToast('暂无可导出的真实记录'); return; }
-    const csv = ['run_id,status,baseline,agent_count,total_tokens,score,duration_seconds,created_at', ...rows.map((row) => row.map((value) => `"${String(value == null ? '' : value).replace(/"/g, '""')}"`).join(','))].join('\n');
-    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })); link.download = 'emergence-runs.csv'; link.click(); window.setTimeout(() => URL.revokeObjectURL(link.href), 1000); showToast('真实运行记录已导出');
+  async function exportHistory() {
+    try {
+      const response = await fetch('/api/export?format=csv');
+      if (!response.ok) { const data = await response.json().catch(() => ({})); throw new Error(data.error || `导出失败 (${response.status})`); }
+      const blob = await response.blob();
+      const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'emergence-runs.csv'; link.click(); window.setTimeout(() => URL.revokeObjectURL(link.href), 1000); showToast('完整运行记录已导出');
+    } catch (error) { setError(error.message); }
   }
   async function bootstrap() {
     loadLocalConfig();
@@ -328,7 +411,7 @@
       $('#settingsStatus').textContent = config.has_server_key ? '服务端已发现 API Key；也可以在这里临时覆盖。' : '密钥仅用于本次浏览器会话，不写入数据库。';
       $('#settingsStatus').classList.add('ok');
     } catch (error) { setBackendStatus('后端未连接', 'error'); setError(error.message); }
-    renderRoster(); applyBaseline(); await loadHistory();
+    renderRoster(); applyBaseline(); await Promise.all([loadTasks(), loadHistory()]);
   }
 
   $('#modelBtn').addEventListener('click', () => $('#settingsPanel').classList.toggle('open'));
@@ -340,6 +423,8 @@
     $('#maxInputTokens').value = profile.maxInputTokens;
     $('#maxOutputTokens').value = profile.maxOutputTokens;
   });
+  $('#taskSelect').addEventListener('change', applySelectedTask);
+  $('#batchBtn').addEventListener('click', () => startBatch('single'));
   $('#baselineSelect').addEventListener('change', applyBaseline);
   $('#agentRange').addEventListener('input', () => { renderRoster(); updateHint(); });
   $('#couplingSelect').addEventListener('change', updateHint);
