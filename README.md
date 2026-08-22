@@ -54,6 +54,13 @@ python server.py
 - 信息整合与规划（II）：10 个，多来源归纳与约束下方案设计
 - 动态扰动（DT）：8 个，D1–D4 每类 2 个，执行中途注入扰动
 
+任务按角色分为：
+
+- `core`：16 个高耦合核心判别任务，用于检验多 Agent 协作机制的真实增益
+- `boundary`：14 个低耦合边界任务，用于检验“动态协作并非普遍最优”的边界条件
+
+难度分布：`hard` 16 个、`medium` 11 个、`easy` 3 个。
+
 在实验配置中选择任务后，研究问题、耦合度与扰动条件会自动填充。也可以留空使用自定义问题。
 
 ## 批量运行与导出
@@ -72,6 +79,7 @@ python scripts/analysis.py
 
 - 表 5-1 风格的主结果表：Q、SR、Cost、Time、Stab CV
 - 表 5-7 风格的任务质量 Q 统计检验：Kruskal–Wallis 与成对 Mann–Whitney U、效应量
+- 分层分析：按角色（core / boundary）、任务类型（CR / II / DT）、难度（easy / medium / hard）
 - Cost / Time 的组间 Kruskal–Wallis 检验
 
 报告写入 `reports/analysis_tables.md`，并在终端输出。Rob / Adapt 需要专门的扰动前后对照实验，当前脚本不强行估计。

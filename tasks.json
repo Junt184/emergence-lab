@@ -5,13 +5,14 @@
       "id": "CR-01",
       "type": "code_repair",
       "title": "FizzBuzz 整除顺序修复",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "coupling": "low",
-      "problem": "修复下面 Python 函数。要求：输入整数 n，返回字符串：被 3 整除返回 Fizz，被 5 整除返回 Buzz，同时被 3 和 5 整除返回 FizzBuzz，否则返回数字字符串。当前实现存在判断顺序错误。\n```\ndef fizzbuzz(n):\n    if n % 3 == 0:\n        return \"Fizz\"\n    if n % 5 == 0:\n        return \"Buzz\"\n    if n % 15 == 0:\n        return \"FizzBuzz\"\n    return str(n)\n```\n请给出修复后的完整函数代码，并说明修复点。",
-      "success_criteria": "通过测试用例：fizzbuzz(15)==\"FizzBuzz\"、fizzbuzz(9)==\"Fizz\"、fizzbuzz(10)==\"Buzz\"、fizzbuzz(7)==\"7\"。",
+      "problem": "实现一个 FizzBuzz 模块，包含以下函数：\n1. `fizzbuzz(n)`：输入整数 n；被 3 整除返回 \"Fizz\"，被 5 整除返回 \"Buzz\"，同时被 3 和 5 整除返回 \"FizzBuzz\"，否则返回数字字符串。\n2. `fizzbuzz_range(start, end)`：返回从 start 到 end（含两端）每个整数的 fizzbuzz 结果列表；若 start > end 返回空列表。\n3. 两个函数都必须对非整数输入抛出 TypeError，并处理负数（按相同规则）。\n请给出完整模块代码、参数校验逻辑和 5 个测试用例。",
+      "success_criteria": "通过测试：fizzbuzz(15)==\"FizzBuzz\"、fizzbuzz(-9)==\"Fizz\"、fizzbuzz(7)==\"7\"、fizzbuzz_range(3,5)==[\"Fizz\",\"4\",\"Buzz\"]、fizzbuzz_range(5,3)==[]；非整数抛出 TypeError。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "def fizzbuzz(n):\n    if n % 15 == 0:\n        return \"FizzBuzz\"\n    if n % 3 == 0:\n        return \"Fizz\"\n    if n % 5 == 0:\n        return \"Buzz\"\n    return str(n)"
+      "reference_answer": "def fizzbuzz(n):\n    if n % 15 == 0:\n        return \"FizzBuzz\"\n    if n % 3 == 0:\n        return \"Fizz\"\n    if n % 5 == 0:\n        return \"Buzz\"\n    return str(n)",
+      "role": "boundary"
     },
     {
       "id": "CR-02",
@@ -23,7 +24,8 @@
       "success_criteria": "通过测试用例：is_palindrome(\"A man, a plan, a canal: Panama\")==True、is_palindrome(\"race a car\")==False、is_palindrome(\"上海自来水来自海上\")==True。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "import re\ndef is_palindrome(text):\n    s = re.sub(r\"[^a-zA-Z0-9\\u4e00-\\u9fff]\", \"\", text.lower())\n    return s == s[::-1]"
+      "reference_answer": "import re\ndef is_palindrome(text):\n    s = re.sub(r\"[^a-zA-Z0-9\\u4e00-\\u9fff]\", \"\", text.lower())\n    return s == s[::-1]",
+      "role": "boundary"
     },
     {
       "id": "CR-03",
@@ -35,7 +37,8 @@
       "success_criteria": "通过测试用例：flatten([1,[2,[3,4]],5])==[1,2,3,4,5]、flatten([])==[]。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "def flatten(items):\n    result = []\n    for item in items:\n        if isinstance(item, list):\n            result.extend(flatten(item))\n        else:\n            result.append(item)\n    return result"
+      "reference_answer": "def flatten(items):\n    result = []\n    for item in items:\n        if isinstance(item, list):\n            result.extend(flatten(item))\n        else:\n            result.append(item)\n    return result",
+      "role": "boundary"
     },
     {
       "id": "CR-04",
@@ -47,19 +50,21 @@
       "success_criteria": "通过测试用例：binary_search([1,2,3,4,5],3)==2、binary_search([1,2,3,4,5],6)==-1、binary_search([],1)==-1。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "def binary_search(nums, target):\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1"
+      "reference_answer": "def binary_search(nums, target):\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1",
+      "role": "boundary"
     },
     {
       "id": "CR-05",
       "type": "code_repair",
       "title": "JSONL 空行解析修复",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "coupling": "low",
-      "problem": "修复下面 Python 函数。要求：解析 JSON Lines 文本，跳过空行与空白行，返回字典列表；解析失败的行应抛出 ValueError。当前实现遇到空行会崩溃。\n```\nimport json\ndef parse_jsonl(text):\n    return [json.loads(line) for line in text.split(\"\\n\")]\n```\n请给出修复后的完整函数代码，并说明修复点。",
-      "success_criteria": "通过测试用例：parse_jsonl('{\"a\":1}\\n\\n  \\n{\"a\":2}')==[{\"a\":1},{\"a\":2}]；对无效 JSON 行抛出 ValueError。",
+      "problem": "实现一个 JSON Lines 解析模块：\n1. `parse_jsonl(text)`：解析 JSONL 文本，跳过空行和纯空白行，返回字典列表。\n2. 解析失败时抛出 ValueError，并附带行号，例如 \"line 3: invalid JSON\"。\n3. 额外实现 `load_jsonl(path)`：读取文件并调用 parse_jsonl；文件不存在时抛出 FileNotFoundError。\n请给出完整代码和 4 个测试用例。",
+      "success_criteria": "通过测试：parse_jsonl('{\"a\":1}\\n\\n  \\n{\"a\":2}')==[{\"a\":1},{\"a\":2}]；无效 JSON 抛出含行号的 ValueError；load_jsonl 对不存在文件抛 FileNotFoundError。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "import json\ndef parse_jsonl(text):\n    out = []\n    for line in text.split(\"\\n\"):\n        line = line.strip()\n        if not line:\n            continue\n        out.append(json.loads(line))\n    return out"
+      "reference_answer": "import json\ndef parse_jsonl(text):\n    out = []\n    for line in text.split(\"\\n\"):\n        line = line.strip()\n        if not line:\n            continue\n        out.append(json.loads(line))\n    return out",
+      "role": "boundary"
     },
     {
       "id": "CR-06",
@@ -71,7 +76,8 @@
       "success_criteria": "通过测试用例：dedupe([3,1,2,1,3])==[3,1,2]、dedupe([])==[]。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "def dedupe(items):\n    seen = set()\n    out = []\n    for item in items:\n        if item not in seen:\n            seen.add(item)\n            out.append(item)\n    return out"
+      "reference_answer": "def dedupe(items):\n    seen = set()\n    out = []\n    for item in items:\n        if item not in seen:\n            seen.add(item)\n            out.append(item)\n    return out",
+      "role": "boundary"
     },
     {
       "id": "CR-07",
@@ -83,31 +89,34 @@
       "success_criteria": "通过测试用例：group_by_first([\"apple\",\"Avocado\",\"banana\"])=={\"a\":[\"apple\",\"Avocado\"],\"b\":[\"banana\"]}。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "from collections import defaultdict\ndef group_by_first(words):\n    groups = defaultdict(list)\n    for word in words:\n        key = word[0].lower() if word else \"_\"\n        groups[key].append(word)\n    return dict(groups)"
+      "reference_answer": "from collections import defaultdict\ndef group_by_first(words):\n    groups = defaultdict(list)\n    for word in words:\n        key = word[0].lower() if word else \"_\"\n        groups[key].append(word)\n    return dict(groups)",
+      "role": "boundary"
     },
     {
       "id": "CR-08",
       "type": "code_repair",
       "title": "安全除法舍入错误修复",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "coupling": "low",
-      "problem": "修复下面 Python 函数。要求：safe_divide(a, b) 在 b 为 0 时返回 None，否则返回保留两位小数的浮点数。当前实现返回了字符串。\n```\ndef safe_divide(a, b):\n    if b == 0:\n        return None\n    return f\"{a / b:.2f}\"\n```\n请给出修复后的完整函数代码，并说明修复点。",
-      "success_criteria": "通过测试用例：safe_divide(5,2)==2.5、safe_divide(1,0) is None、safe_divide(1,3)==0.33。",
+      "problem": "实现一个安全数值计算模块：\n1. `safe_divide(a, b)`：b 为 0 时返回 None，否则返回保留两位小数的浮点数。\n2. `safe_mod(a, b)`：b 为 0 时返回 None，否则返回 a % b。\n3. `safe_average(values)`：对空列表或全为 None 的列表返回 None，否则返回平均值；忽略列表中的 None 值。\n请给出完整模块代码、异常处理说明和 5 个测试用例。",
+      "success_criteria": "通过测试：safe_divide(5,2)==2.5、safe_divide(1,0) is None、safe_mod(7,3)==1、safe_average([]) is None、safe_average([2,None,4])==3.0。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "def safe_divide(a, b):\n    if b == 0:\n        return None\n    return round(a / b, 2)"
+      "reference_answer": "def safe_divide(a, b):\n    if b == 0:\n        return None\n    return round(a / b, 2)",
+      "role": "boundary"
     },
     {
       "id": "CR-09",
       "type": "code_repair",
       "title": "区间合并排序键修复",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "coupling": "high",
-      "problem": "修复下面 Python 函数。要求：合并重叠区间。当前实现未先按区间起点排序，导致部分输入合并错误。\n```\ndef merge_intervals(intervals):\n    out = []\n    for start, end in intervals:\n        if out and start <= out[-1][1]:\n            out[-1][1] = max(out[-1][1], end)\n        else:\n            out.append([start, end])\n    return out\n```\n请给出修复后的完整函数代码，并说明修复点。",
-      "success_criteria": "通过测试用例：merge_intervals([[1,3],[2,6],[8,10],[15,18]])==[[1,6],[8,10],[15,18]]、merge_intervals([[1,4],[0,2]])==[[0,4]]。",
+      "problem": "实现一个区间工具模块，要求：\n1. `merge_intervals(intervals)`：合并所有重叠区间，返回合并后的区间列表。\n2. `has_overlap(intervals)`：判断任意两个区间是否重叠，返回 bool。\n3. `uncovered_range(intervals, start, end)`：返回 [start, end] 内未被任何区间覆盖的最长连续子区间；若全部覆盖返回 None。\n4. 对非法输入（非列表、区间不是二元组、start>end 等）抛出 ValueError。\n请给出完整代码、边界说明和 8 个测试用例。",
+      "success_criteria": "通过测试：merge_intervals([[1,3],[2,6],[8,10],[15,18]])==[[1,6],[8,10],[15,18]]；has_overlap([[1,2],[3,4]])==False；uncovered_range([[1,3],[6,9]],1,10)==[4,5]；非法输入抛 ValueError。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "def merge_intervals(intervals):\n    out = []\n    for start, end in sorted(intervals):\n        if out and start <= out[-1][1]:\n            out[-1][1] = max(out[-1][1], end)\n        else:\n            out.append([start, end])\n    return out"
+      "reference_answer": "def merge_intervals(intervals):\n    out = []\n    for start, end in sorted(intervals):\n        if out and start <= out[-1][1]:\n            out[-1][1] = max(out[-1][1], end)\n        else:\n            out.append([start, end])\n    return out",
+      "role": "core"
     },
     {
       "id": "CR-10",
@@ -119,31 +128,34 @@
       "success_criteria": "通过测试用例：slugify(\"Hello World 2024\")==\"hello-world-2024\"、slugify(\"  A B  \")==\"a-b\"。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "import re\ndef slugify(text):\n    s = text.strip().lower()\n    s = re.sub(r\"[^a-z0-9]+\", \"-\", s)\n    return s.strip(\"-\")"
+      "reference_answer": "import re\ndef slugify(text):\n    s = text.strip().lower()\n    s = re.sub(r\"[^a-z0-9]+\", \"-\", s)\n    return s.strip(\"-\")",
+      "role": "boundary"
     },
     {
       "id": "CR-11",
       "type": "code_repair",
       "title": "最高频元素计数错误修复",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "coupling": "low",
-      "problem": "修复下面 Python 函数。要求：返回列表中出现次数最多的元素；并列时返回先出现的元素。当前实现错误地返回了最后出现的元素。\n```\ndef most_frequent(items):\n    counts = {item: items.count(item) for item in items}\n    return max(counts, key=lambda k: counts[k])\n```\n请给出修复后的完整函数代码，并说明修复点。",
-      "success_criteria": "通过测试用例：most_frequent([\"a\",\"b\",\"a\",\"b\",\"a\"])==\"a\"、most_frequent([\"x\",\"y\",\"y\",\"x\"])==\"x\"。",
+      "problem": "实现一个频次统计模块：\n1. `most_frequent(items)`：返回出现次数最多的元素；并列时返回最先出现的元素。\n2. `least_frequent(items)`：返回出现次数最少的元素；并列时返回最先出现的元素。\n3. 对空列表返回 None。\n4. 算法时间复杂度应为 O(n)，不能对每个元素调用 items.count()。\n请给出完整代码和 6 个测试用例，包括 10 万级元素的性能测试说明。",
+      "success_criteria": "通过测试：most_frequent([\"a\",\"b\",\"a\",\"b\",\"a\"])==\"a\"、most_frequent([\"x\",\"y\",\"y\",\"x\"])==\"x\"、least_frequent([\"x\",\"y\",\"y\",\"x\"])==\"x\"、空列表返回 None；不使用 count() 嵌套循环。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "def most_frequent(items):\n    if not items:\n        return None\n    counts = {}\n    for item in items:\n        counts[item] = counts.get(item, 0) + 1\n    return max(counts, key=lambda k: (counts[k], -items.index(k)))"
+      "reference_answer": "def most_frequent(items):\n    if not items:\n        return None\n    counts = {}\n    for item in items:\n        counts[item] = counts.get(item, 0) + 1\n    return max(counts, key=lambda k: (counts[k], -items.index(k)))",
+      "role": "boundary"
     },
     {
       "id": "CR-12",
       "type": "code_repair",
       "title": "分块生成器重复 yield 修复",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "coupling": "high",
-      "problem": "修复下面 Python 函数。要求：把序列按指定大小分块，返回生成器，每块为列表。当前实现可能在后续迭代中产出空块。\n```\ndef chunked(sequence, size):\n    for i in range(0, len(sequence), size):\n        yield sequence[i:i + size]\n        yield []\n```\n请给出修复后的完整函数代码，并说明修复点。",
-      "success_criteria": "通过测试用例：list(chunked([1,2,3,4,5],2))==[[1,2],[3,4],[5]]、list(chunked([],2))==[]。",
+      "problem": "实现一个惰性批处理模块：\n1. `chunked(sequence, size)`：把序列按 size 分块，返回生成器；不得产出空块；size<=0 抛 ValueError。\n2. `windowed(sequence, size)`：返回滑动窗口生成器，每窗 size 个元素；窗口不足 size 时停止。\n3. `batch_map(iterable, size, transform)`：惰性地对每个批次应用 transform，返回批处理结果的生成器；transform 抛出异常时返回 None 并继续处理后续批次。\n请给出完整代码和 8 个测试用例，包括异常处理与惰性验证。",
+      "success_criteria": "通过测试：list(chunked([1,2,3,4,5],2))==[[1,2],[3,4],[5]]；list(windowed([1,2,3],2))==[[1,2],[2,3]]；batch_map 对异常批次返回 None 且不影响后续；size<=0 抛 ValueError。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "def chunked(sequence, size):\n    if size <= 0:\n        raise ValueError(\"size must be positive\")\n    for i in range(0, len(sequence), size):\n        yield sequence[i:i + size]"
+      "reference_answer": "def chunked(sequence, size):\n    if size <= 0:\n        raise ValueError(\"size must be positive\")\n    for i in range(0, len(sequence), size):\n        yield sequence[i:i + size]",
+      "role": "core"
     },
     {
       "id": "II-01",
@@ -155,7 +167,8 @@
       "success_criteria": "参考答案关键约束全覆盖（预算≤3万、支持文档协作、支持任务看板），并给出可执行步骤与退出条件。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": "建议采用 Notion 或飞书基础版：覆盖文档与看板，年费在预算内；先做两周试点，以采用率≥70%和任务按期完成率≥90%为通过标准，否则回退旧方案。"
+      "reference_answer": "建议采用 Notion 或飞书基础版：覆盖文档与看板，年费在预算内；先做两周试点，以采用率≥70%和任务按期完成率≥90%为通过标准，否则回退旧方案。",
+      "role": "boundary"
     },
     {
       "id": "II-02",
@@ -167,7 +180,8 @@
       "success_criteria": "三个独立结论均被保留，合并摘要不超过 150 字且未虚构因果联系。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "boundary"
     },
     {
       "id": "II-03",
@@ -179,7 +193,8 @@
       "success_criteria": "识别电力、水资源、承重三个约束的置信度差异，对水约束给出明确核实步骤，结论包含前置条件。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "II-04",
@@ -191,19 +206,21 @@
       "success_criteria": "正确计算加权得分，排序合理，说明价格与交付周期之间的权衡和至少一个风险。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "II-05",
       "type": "information_integration",
       "title": "新产品定价与上市方案",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "coupling": "high",
-      "problem": "为一家 SaaS 公司的数据同步工具制定定价与上市方案。约束：目标客户为 50–200 人的中型企业；竞品均价每人每月 45 元；公司要求首年毛利不低于 60%；销售周期不超过 6 个月。请给出定价、上市节奏与风险。",
-      "success_criteria": "方案满足目标客户、毛利≥60%、销售周期≤6 个月的约束，并包含定价依据与退出条件。",
+      "problem": "为一家 SaaS 公司的数据同步工具制定完整上市方案。约束：\n1. 目标客户为 50–200 人的中型企业，销售周期不超过 6 个月；\n2. 首年毛利不低于 60%；\n3. 竞品均价每人每月 45 元，需给出 3 档定价（基础版/专业版/企业版）及依据；\n4. 需包含销售渠道设计、客户访谈验证计划、上市时间表和失败退出条件。\n请输出结构化方案，并显式说明关键假设和风险。",
+      "success_criteria": "方案满足毛利≥60%、销售周期≤6个月、3 档定价；包含渠道、验证计划、时间表与退出条件；至少说明 3 个关键假设。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "II-06",
@@ -215,7 +232,8 @@
       "success_criteria": "共识、分歧、主要风险三点齐全，且不混淆不同研报的观点。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "boundary"
     },
     {
       "id": "II-07",
@@ -227,7 +245,8 @@
       "success_criteria": "正确识别东区面积不达标、南区通勤不达标，推荐北区并说明理由。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "II-08",
@@ -239,19 +258,21 @@
       "success_criteria": "预算≤40 万元、总时长≥300 小时、三类课程均有覆盖，并包含执行时间表。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "boundary"
     },
     {
       "id": "II-09",
       "type": "information_integration",
       "title": "客户投诉根因分析",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "coupling": "high",
-      "problem": "某产品近 30 天客诉率从 1.2% 升至 3.8%。信息：版本 4.2 在 35 天前发布；客服记录显示 61% 投诉集中在登录与同步；监控显示登录接口 P99 时延由 210ms 升至 870ms；供应链无异常。请判断最可能根因，并给出验证与修复计划。",
-      "success_criteria": "根因判断与版本发布时序一致，给出可验证假设（登录/同步回归）和分步修复计划。",
+      "problem": "某产品近 30 天客诉率从 1.2% 升至 3.8%。信息：\n1. 版本 4.2 在 35 天前发布；客服记录显示 61% 投诉集中在登录与同步；\n2. 监控显示登录接口 P99 时延由 210ms 升至 870ms，错误率由 0.3% 升至 1.7%；\n3. 供应链无异常；灰度发布仅覆盖 5% 用户；\n4. 数据团队报告同步任务失败率上升 4 倍，但日志平台近期有 2 天数据缺失。\n请给出根因假设排序、验证实验设计、修复方案、灰度/回滚策略和后续监控指标。",
+      "success_criteria": "根因假设排序合理；给出可执行的验证实验；包含灰度/回滚方案和至少 5 个监控指标。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "II-10",
@@ -263,7 +284,8 @@
       "success_criteria": "分配总额=5000 万；研发占比≥25%；销售与产品各≥1500 万；运营调整被解释。",
       "perturbation": null,
       "perturbation_message": null,
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "DT-01",
@@ -275,7 +297,8 @@
       "success_criteria": "最终方案包含 GDPR 合规专项，并能重新规划上线时间或预算，覆盖初始约束。",
       "perturbation": "D1",
       "perturbation_message": "执行中途新增关键约束：法务部门要求所有功能必须通过 GDPR 合规审计后才能上架，审计周期通常为 6–8 周，且需要一名专职数据保护官参与。",
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "DT-02",
@@ -287,7 +310,8 @@
       "success_criteria": "最终方案新增等保三级要求，并重新规划时间/预算，迁移步骤与回滚方案完整。",
       "perturbation": "D1",
       "perturbation_message": "执行中途新增关键约束：安全部门要求目标环境必须通过等保三级测评，测评与整改周期至少增加 5 周，且需增设日志审计与加密链路。",
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "DT-03",
@@ -299,19 +323,21 @@
       "success_criteria": "识别资料冲突并显式处理不确定性，给出双供应商策略和验证步骤。",
       "perturbation": "D2",
       "perturbation_message": "执行中途关键资料出现冲突：采购部报告该供应商近一个月按时交付率仍为 98%；质量部报告近一个月来料不良率由 0.3% 升至 2.1%。两份数据在交付质量上相互矛盾，且质量部的原始检测记录暂不可用。",
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "DT-04",
       "type": "dynamic_perturbation",
       "title": "城市活动保障（关键资料不可用）",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "coupling": "high",
-      "problem": "为一场 2 万人的户外音乐节制定安全保障方案。初始资料：场地 8 万 m²，预计最高气温 31°C，周边医院车程 20 分钟。请给出安保、医疗与疏散方案。",
-      "success_criteria": "在气象与医疗资料不可用后仍给出保守方案和启动条件，包含可降级路径。",
+      "problem": "为一场 2 万人的户外音乐节制定安全保障方案。初始资料：\n1. 场地 8 万 m²，预计最高气温 31°C；\n2. 周边医院车程 20 分钟，但可用急救床位数量无法确认；\n3. 活动当天雷暴概率与风向数据不可用；\n4. 需在 72 小时内提交可执行方案。\n请给出安保、医疗、交通疏散、极端天气 A/B 两套方案、启动阈值和现场指挥权责表。",
+      "success_criteria": "包含安保、医疗、疏散、极端天气 A/B 方案；明确启动阈值；覆盖资料不可用时的保守处理；包含指挥权责表。",
       "perturbation": "D2",
       "perturbation_message": "执行中途关键资料暂不可用：气象部门无法提供活动当日的雷暴概率与风向数据；周边两家医院表示活动期间可用急救床位数量无法确认。",
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "DT-05",
@@ -323,31 +349,34 @@
       "success_criteria": "识别低质产出、恢复流程设计，最终方案通过测试并含修复/转交机制。",
       "perturbation": "D3",
       "perturbation_message": "执行中途某关键 Agent 的阶段产出低质：一名高级工程师提交的审查清单缺少安全与性能检查项，且其建议的度量指标无法采集。需要识别问题并恢复。",
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "DT-06",
       "type": "dynamic_perturbation",
       "title": "招聘计划（关键 Agent 产出缺失）",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "coupling": "high",
-      "problem": "为一家 500 人公司制定 2026 年 Q1 招聘计划。初始要求：新增研发 40 人、销售 20 人，预算 150 万元，周期 3 个月。请给出渠道、节奏与风险。",
-      "success_criteria": "在关键产出缺失后能重新补位，最终方案覆盖初始约束并说明渠道。",
+      "problem": "为一家 500 人公司制定 2026 年 Q1 招聘计划。初始要求：\n1. 新增研发 40 人、销售 20 人，预算 150 万元，周期 3 个月；\n2. 研发岗位薪酬带宽调研未能按时提交，需要给出缺失情况下的决策路径；\n3. 销售岗位需要 6 个渠道并评估渠道质量；\n4. 要求员工 90 天保留率不低于 95%。\n请给出渠道组合、薪酬决策路径、节奏、风险与失败退出条件。",
+      "success_criteria": "覆盖研发 40 人/销售 20 人、预算≤150 万、保留率≥95%；给出薪酬数据缺失时的决策路径；包含渠道评估与退出条件。",
       "perturbation": "D3",
       "perturbation_message": "执行中途某关键 Agent 的阶段产出缺失：负责薪酬调研的同事未能按时提交市场薪酬分位数据，导致无法确定研发岗位薪酬带宽。需要识别缺失并恢复。",
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "DT-07",
       "type": "dynamic_perturbation",
       "title": "API 集成方案（工具失败降级）",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "coupling": "high",
-      "problem": "为某电商系统设计第三方支付 API 集成方案。初始要求：支持支付宝与微信支付，峰值 2000 TPS，可用性 99.95%，上线周期 10 周。请给出架构、时序与失败处理。",
-      "success_criteria": "给出支付渠道降级路径，覆盖峰值与可用性约束，并说明重试/对账机制。",
+      "problem": "为某电商系统设计第三方支付 API 集成方案。初始要求：\n1. 支持支付宝与微信支付，峰值 2000 TPS，可用性 99.95%，上线周期 10 周；\n2. 沙箱环境中的微信支付模拟器无法连接，渠道方文档站点暂时不可访问；\n3. 需设计降级路径、对账机制、重试策略和切换演练。\n请给出架构、时序、异常处理、测试方案和上线检查清单。",
+      "success_criteria": "覆盖峰值 2000 TPS 与可用性 99.95%；包含降级路径、对账、重试、切换演练和上线检查清单；对工具失败给出替代路径。",
       "perturbation": "D4",
       "perturbation_message": "执行中途一次外部工具调用失败：沙箱环境中的微信支付模拟器无法连接，且渠道方文档站点暂时不可访问。请提供降级路径并继续完成设计。",
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     },
     {
       "id": "DT-08",
@@ -359,7 +388,8 @@
       "success_criteria": "提供外部工具失败后的降级路径，满足延迟与重放要求，成本在预算内。",
       "perturbation": "D4",
       "perturbation_message": "执行中途一次外部工具调用失败：数据质量校验工具无法连接外部字典服务，导致地址标准化校验不可用。请提供降级路径并继续完成设计。",
-      "reference_answer": null
+      "reference_answer": null,
+      "role": "core"
     }
   ]
 }

@@ -104,7 +104,8 @@
     $('#couplingSelect').value = task.coupling || 'low';
     $('#perturbSelect').value = task.perturbation || 'none';
     const typeName = taskTypeNames[task.type] || task.type || '综合';
-    $('#taskNote').textContent = `${task.id} · ${typeName} · ${task.coupling === 'high' ? '高耦合' : '低耦合'} · ${task.perturbation ? '扰动 ' + task.perturbation : '无扰动'}\n成功标准：${task.success_criteria || '由裁判模型按通用质量标准评估'}`;
+    const roleName = task.role === 'core' ? '核心判别任务' : (task.role === 'boundary' ? '边界任务' : '未分类');
+    $('#taskNote').textContent = `${task.id} · ${typeName} · ${task.coupling === 'high' ? '高耦合' : '低耦合'} · ${task.difficulty || '?'} · ${roleName} · ${task.perturbation ? '扰动 ' + task.perturbation : '无扰动'}\n成功标准：${task.success_criteria || '由裁判模型按通用质量标准评估'}`;
     updateHint();
   }
   async function loadTasks() {

@@ -74,6 +74,7 @@ def task_summaries() -> list[dict[str, Any]]:
             "perturbation": task.get("perturbation"),
             "success_criteria": task.get("success_criteria"),
             "problem": task.get("problem"),
+            "role": task.get("role"),
         }
         for task in TASK_BANK
     ]
