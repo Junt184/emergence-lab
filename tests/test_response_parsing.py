@@ -54,9 +54,10 @@ class ResponseParsingTests(unittest.TestCase):
         client = ModelClient({"model": "deepseek-v4-flash"}, RunContext("TEST-DS-LIMITS"))
         self.assertEqual(client.max_input_tokens, 128000)
         self.assertEqual(client.max_output_tokens, 8192)
+        # 推理模型隐藏推理会烧掉输出预算，上限放宽到 32768 供截断重试升档
         oversized = ModelClient({"model": "deepseek-v4-flash", "max_input_tokens": 999999, "max_output_tokens": 999999}, RunContext("TEST-DS-LIMITS-CAP"))
         self.assertEqual(oversized.max_input_tokens, 128000)
-        self.assertEqual(oversized.max_output_tokens, 8192)
+        self.assertEqual(oversized.max_output_tokens, 32768)
 
     def test_empty_response_is_retried_and_usage_is_recorded(self):
         empty = {"choices": [{"message": {"content": ""}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 7, "completion_tokens": 3, "total_tokens": 10}}

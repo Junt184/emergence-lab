@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "tasks": [
     {
       "id": "CR-01",
@@ -12,7 +12,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "def fizzbuzz(n):\n    if n % 15 == 0:\n        return \"FizzBuzz\"\n    if n % 3 == 0:\n        return \"Fizz\"\n    if n % 5 == 0:\n        return \"Buzz\"\n    return str(n)",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_values():\n    assert fizzbuzz(15) == \"FizzBuzz\"\n    assert fizzbuzz(-9) == \"Fizz\"\n    assert fizzbuzz(7) == \"7\"\n    assert fizzbuzz(5) == \"Buzz\"\n\ndef test_range():\n    assert fizzbuzz_range(3, 5) == [\"Fizz\", \"4\", \"Buzz\"]\n    assert fizzbuzz_range(5, 3) == []\n\ndef test_type_error():\n    for bad in (\"3\", 3.5, None):\n        try:\n            fizzbuzz(bad)\n        except TypeError:\n            continue\n        raise AssertionError(f\"expected TypeError for {bad!r}\")\n"
     },
     {
       "id": "CR-02",
@@ -25,7 +26,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "import re\ndef is_palindrome(text):\n    s = re.sub(r\"[^a-zA-Z0-9\\u4e00-\\u9fff]\", \"\", text.lower())\n    return s == s[::-1]",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_cases():\n    assert is_palindrome(\"A man, a plan, a canal: Panama\") == True\n    assert is_palindrome(\"race a car\") == False\n    assert is_palindrome(\"上海自来水来自海上\") == True\n    assert is_palindrome(\"hello\") == False\n"
     },
     {
       "id": "CR-03",
@@ -38,7 +40,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "def flatten(items):\n    result = []\n    for item in items:\n        if isinstance(item, list):\n            result.extend(flatten(item))\n        else:\n            result.append(item)\n    return result",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_nested():\n    assert flatten([1, [2, [3, 4]], 5]) == [1, 2, 3, 4, 5]\n    assert flatten([]) == []\n    assert flatten([[[]]]) == []\n    assert flatten([[[1], 2], [3]]) == [1, 2, 3]\n"
     },
     {
       "id": "CR-04",
@@ -51,7 +54,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "def binary_search(nums, target):\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_search():\n    assert binary_search([1, 2, 3, 4, 5], 3) == 2\n    assert binary_search([1, 2, 3, 4, 5], 6) == -1\n    assert binary_search([], 1) == -1\n    assert binary_search([1], 1) == 0\n    assert binary_search([1, 3], 3) == 1\n"
     },
     {
       "id": "CR-05",
@@ -64,7 +68,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "import json\ndef parse_jsonl(text):\n    out = []\n    for line in text.split(\"\\n\"):\n        line = line.strip()\n        if not line:\n            continue\n        out.append(json.loads(line))\n    return out",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_parse():\n    assert parse_jsonl('{\"a\":1}\\n\\n  \\n{\"a\":2}') == [{\"a\": 1}, {\"a\": 2}]\n    assert parse_jsonl(\"\") == []\n\ndef test_invalid_line_number():\n    try:\n        parse_jsonl('{\"a\":1}\\nnot json')\n    except ValueError as exc:\n        assert \"line 2\" in str(exc), str(exc)\n    else:\n        raise AssertionError(\"expected ValueError\")\n\ndef test_load_missing():\n    try:\n        load_jsonl(\"/nonexistent/path/x.jsonl\")\n    except FileNotFoundError:\n        pass\n    else:\n        raise AssertionError(\"expected FileNotFoundError\")\n"
     },
     {
       "id": "CR-06",
@@ -77,7 +82,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "def dedupe(items):\n    seen = set()\n    out = []\n    for item in items:\n        if item not in seen:\n            seen.add(item)\n            out.append(item)\n    return out",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_dedupe():\n    assert dedupe([3, 1, 2, 1, 3]) == [3, 1, 2]\n    assert dedupe([]) == []\n    assert dedupe([1, 1, 1]) == [1]\n"
     },
     {
       "id": "CR-07",
@@ -90,7 +96,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "from collections import defaultdict\ndef group_by_first(words):\n    groups = defaultdict(list)\n    for word in words:\n        key = word[0].lower() if word else \"_\"\n        groups[key].append(word)\n    return dict(groups)",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_group():\n    assert group_by_first([\"apple\", \"Avocado\", \"banana\"]) == {\"a\": [\"apple\", \"Avocado\"], \"b\": [\"banana\"]}\n    assert group_by_first([]) == {}\n    assert group_by_first([\"\"]) == {\"_\": [\"\"]}\n"
     },
     {
       "id": "CR-08",
@@ -103,7 +110,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "def safe_divide(a, b):\n    if b == 0:\n        return None\n    return round(a / b, 2)",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_divide():\n    assert safe_divide(5, 2) == 2.5\n    assert safe_divide(1, 0) is None\n    assert safe_divide(10, 3) == 3.33\n\ndef test_mod():\n    assert safe_mod(7, 3) == 1\n    assert safe_mod(5, 0) is None\n\ndef test_average():\n    assert safe_average([]) is None\n    assert safe_average([None, None]) is None\n    assert safe_average([2, None, 4]) == 3.0\n"
     },
     {
       "id": "CR-09",
@@ -116,7 +124,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "def merge_intervals(intervals):\n    out = []\n    for start, end in sorted(intervals):\n        if out and start <= out[-1][1]:\n            out[-1][1] = max(out[-1][1], end)\n        else:\n            out.append([start, end])\n    return out",
-      "role": "core"
+      "role": "core",
+      "test_code": "def test_merge():\n    assert merge_intervals([[1, 3], [2, 6], [8, 10], [15, 18]]) == [[1, 6], [8, 10], [15, 18]]\n    assert merge_intervals([[1, 4], [4, 5]]) == [[1, 5]]\n    assert merge_intervals([]) == []\n\ndef test_overlap():\n    assert has_overlap([[1, 2], [3, 4]]) == False\n    assert has_overlap([[1, 3], [2, 4]]) == True\n\ndef test_uncovered():\n    assert uncovered_range([[1, 3], [6, 9]], 1, 10) == [4, 5]\n    assert uncovered_range([[1, 10]], 1, 10) is None\n\ndef test_invalid():\n    for bad in (\"x\", [[1, 2, 3]], [[1]]):\n        try:\n            merge_intervals(bad)\n        except ValueError:\n            continue\n        raise AssertionError(f\"expected ValueError for {bad!r}\")\n"
     },
     {
       "id": "CR-10",
@@ -129,7 +138,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "import re\ndef slugify(text):\n    s = text.strip().lower()\n    s = re.sub(r\"[^a-z0-9]+\", \"-\", s)\n    return s.strip(\"-\")",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_slug():\n    assert slugify(\"Hello World 2024\") == \"hello-world-2024\"\n    assert slugify(\"  A B  \") == \"a-b\"\n    assert slugify(\"Python 3.12!\") == \"python-3-12\"\n    assert slugify(\"\") == \"\"\n"
     },
     {
       "id": "CR-11",
@@ -142,7 +152,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "def most_frequent(items):\n    if not items:\n        return None\n    counts = {}\n    for item in items:\n        counts[item] = counts.get(item, 0) + 1\n    return max(counts, key=lambda k: (counts[k], -items.index(k)))",
-      "role": "boundary"
+      "role": "boundary",
+      "test_code": "def test_most():\n    assert most_frequent([\"a\", \"b\", \"a\", \"b\", \"a\"]) == \"a\"\n    assert most_frequent([\"x\", \"y\", \"y\", \"x\"]) == \"x\"\n    assert most_frequent([]) is None\n\ndef test_least():\n    assert least_frequent([\"x\", \"y\", \"y\", \"x\"]) == \"x\"\n    assert least_frequent([]) is None\n    assert least_frequent([1, 1, 2, 3, 3]) == 2\n"
     },
     {
       "id": "CR-12",
@@ -155,7 +166,8 @@
       "perturbation": null,
       "perturbation_message": null,
       "reference_answer": "def chunked(sequence, size):\n    if size <= 0:\n        raise ValueError(\"size must be positive\")\n    for i in range(0, len(sequence), size):\n        yield sequence[i:i + size]",
-      "role": "core"
+      "role": "core",
+      "test_code": "def test_chunked():\n    assert list(chunked([1, 2, 3, 4, 5], 2)) == [[1, 2], [3, 4], [5]]\n    assert list(chunked([], 3)) == []\n    try:\n        list(chunked([1], 0))\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(\"expected ValueError\")\n\ndef test_windowed():\n    assert list(windowed([1, 2, 3], 2)) == [[1, 2], [2, 3]]\n    assert list(windowed([1], 2)) == []\n\ndef test_batch_map():\n    def tf(batch):\n        if 99 in batch:\n            raise RuntimeError(\"boom\")\n        return sum(batch)\n    assert list(batch_map([1, 2, 99, 3, 4], 2, tf)) == [3, None, 4]\n\ndef test_lazy():\n    import types\n    assert isinstance(chunked([1, 2], 1), types.GeneratorType)\n    assert isinstance(windowed([1, 2, 3], 2), types.GeneratorType)\n"
     },
     {
       "id": "II-01",
@@ -389,6 +401,338 @@
       "perturbation": "D4",
       "perturbation_message": "执行中途一次外部工具调用失败：数据质量校验工具无法连接外部字典服务，导致地址标准化校验不可用。请提供降级路径并继续完成设计。",
       "reference_answer": null,
+      "role": "core"
+    },
+    {
+      "id": "CR-13",
+      "type": "code_repair",
+      "title": "LRU 缓存容量与 TTL 交互",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "实现一个带过期时间的 LRU 缓存类 `LRUCache(capacity, ttl_seconds, clock)`：\n1. `put(key, value)` 写入；超出容量时驱逐最久未使用的条目；重复 put 同一 key 视为更新并刷新其热度。\n2. `get(key)` 返回值并刷新热度；不存在或已过期返回 None。\n3. 条目在写入 ttl_seconds 秒后过期；过期条目视为不存在，且不再占用容量。\n4. `clock` 是一个无参函数，返回当前秒数（float），用于测试注入；不得直接调用 time.time()。\n请给出完整类实现和测试用例。",
+      "success_criteria": "通过测试：容量驱逐顺序正确、重复 put 刷新热度、TTL 过期后 get 返回 None、过期条目释放容量。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "test_code": "def test_capacity_eviction():\n    clock = [0.0]\n    c = LRUCache(2, 100, clock=lambda: clock[0])\n    c.put(\"a\", 1)\n    c.put(\"b\", 2)\n    assert c.get(\"a\") == 1\n    c.put(\"c\", 3)\n    assert c.get(\"b\") is None\n    assert c.get(\"c\") == 3\n\ndef test_ttl_expiry():\n    clock = [0.0]\n    c = LRUCache(2, 10, clock=lambda: clock[0])\n    c.put(\"a\", 1)\n    clock[0] = 11.0\n    assert c.get(\"a\") is None\n\ndef test_expired_frees_capacity():\n    clock = [0.0]\n    c = LRUCache(1, 10, clock=lambda: clock[0])\n    c.put(\"a\", 1)\n    clock[0] = 20.0\n    c.put(\"b\", 2)\n    assert c.get(\"b\") == 2\n\ndef test_update_refreshes_recency():\n    clock = [0.0]\n    c = LRUCache(2, 100, clock=lambda: clock[0])\n    c.put(\"a\", 1)\n    c.put(\"b\", 2)\n    c.put(\"a\", 9)\n    c.put(\"c\", 3)\n    assert c.get(\"b\") is None\n    assert c.get(\"a\") == 9\n",
+      "role": "core"
+    },
+    {
+      "id": "CR-14",
+      "type": "code_repair",
+      "title": "分页查询过滤排序交互",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "实现 `paginate(items, page, page_size, key=None, reverse=False, filter_fn=None)`，返回 dict：{\"items\", \"total\", \"page\", \"pages\"}。要求：\n1. page 从 1 开始；total 是过滤后的总数；pages 为过滤后的总页数（空数据 pages=0）。\n2. 先过滤、再排序、后分页；排序必须稳定（相等元素保持原相对顺序）。\n3. page < 1 或（total > 0 且 page > pages）时抛出 ValueError；page_size < 1 同样抛 ValueError。\n4. key 为 None 时保持原始顺序。\n请给出完整函数和测试用例。",
+      "success_criteria": "通过测试：过滤后分页计数正确、排序稳定、非法页码抛 ValueError、空数据 pages=0。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "test_code": "DATA = [{\"name\": n, \"v\": v} for n, v in [(\"a\", 3), (\"b\", 1), (\"c\", 2), (\"d\", 2), (\"e\", 5)]]\n\ndef test_basic_page():\n    r = paginate(DATA, 1, 2, key=lambda x: x[\"v\"])\n    assert [x[\"name\"] for x in r[\"items\"]] == [\"b\", \"c\"]\n    assert r[\"total\"] == 5 and r[\"pages\"] == 3\n\ndef test_stable_sort():\n    r = paginate(DATA, 1, 5, key=lambda x: x[\"v\"])\n    assert [x[\"name\"] for x in r[\"items\"]] == [\"b\", \"c\", \"d\", \"a\", \"e\"]\n\ndef test_filter_then_paginate():\n    r = paginate(DATA, 1, 10, filter_fn=lambda x: x[\"v\"] >= 2)\n    assert r[\"total\"] == 4\n    assert [x[\"name\"] for x in r[\"items\"]] == [\"a\", \"c\", \"d\", \"e\"]\n    r2 = paginate(DATA, 2, 3, key=lambda x: x[\"v\"], filter_fn=lambda x: x[\"v\"] >= 2)\n    assert [x[\"name\"] for x in r2[\"items\"]] == [\"e\"]\n\ndef test_invalid_page():\n    for p in (0, 4):\n        try:\n            paginate(DATA, p, 2)\n        except ValueError:\n            continue\n        raise AssertionError(f\"expected ValueError for page={p}\")\n\ndef test_empty():\n    r = paginate([], 1, 10)\n    assert r == {\"items\": [], \"total\": 0, \"page\": 1, \"pages\": 0}\n",
+      "role": "core"
+    },
+    {
+      "id": "CR-15",
+      "type": "code_repair",
+      "title": "订单状态机非法转移",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "实现一个订单状态机，核心函数 `next_state(state, event)`：\n1. 合法转移：created --pay--> paid；paid --ship--> shipped；shipped --complete--> done；created --cancel--> cancelled；paid --cancel--> refunded。\n2. 其他任何状态与事件组合（包括终态上的操作、未知事件）都必须抛出自定义异常 `InvalidTransition`（需在模块中定义）。\n3. 另实现 `history(events)`：从 created 开始依次应用事件序列，返回状态序列；任一事件非法时抛出 InvalidTransition 且不产生部分结果。\n请给出完整代码和测试用例。",
+      "success_criteria": "通过测试：合法路径正确、取消分支正确（paid 取消为 refunded）、非法转移与未知事件均抛 InvalidTransition、history 中途非法不产生部分结果。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "test_code": "def test_happy_path():\n    assert next_state(\"created\", \"pay\") == \"paid\"\n    assert next_state(\"paid\", \"ship\") == \"shipped\"\n    assert next_state(\"shipped\", \"complete\") == \"done\"\n\ndef test_cancel_branches():\n    assert next_state(\"created\", \"cancel\") == \"cancelled\"\n    assert next_state(\"paid\", \"cancel\") == \"refunded\"\n\ndef test_invalid_transitions():\n    for state, event in [(\"done\", \"cancel\"), (\"created\", \"ship\"), (\"cancelled\", \"pay\"), (\"shipped\", \"pay\"), (\"paid\", \"complete\"), (\"refunded\", \"pay\")]:\n        try:\n            next_state(state, event)\n        except InvalidTransition:\n            continue\n        raise AssertionError(f\"expected InvalidTransition for {state}+{event}\")\n\ndef test_unknown_event():\n    try:\n        next_state(\"created\", \"explode\")\n    except InvalidTransition:\n        pass\n    else:\n        raise AssertionError(\"expected InvalidTransition\")\n\ndef test_history():\n    assert history([\"pay\", \"ship\"]) == [\"created\", \"paid\", \"shipped\"]\n    try:\n        history([\"pay\", \"complete\"])\n    except InvalidTransition:\n        pass\n    else:\n        raise AssertionError(\"expected InvalidTransition\")\n",
+      "role": "core"
+    },
+    {
+      "id": "CR-16",
+      "type": "code_repair",
+      "title": "滑动窗口速率限制器",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "实现 `RateLimiter(limit, window_seconds, clock)`：\n1. `allow()` 在滑动窗口内调用次数未达到 limit 时返回 True，否则 False；每次 allow() 调用都计入窗口计数（包括被拒绝的调用不计入）。\n2. 使用滑动窗口（不是固定时间桶）：任意时刻 t，窗口为 (t - window_seconds, t]。\n3. `clock` 是无参函数返回当前秒数（float），用于测试注入；不得直接调用 time.time()。\n4. limit <= 0 或 window_seconds <= 0 时构造抛 ValueError。\n请给出完整类实现和测试用例。",
+      "success_criteria": "通过测试：窗口内计数正确、窗口滑动后恢复、恰好 window_seconds 后视为已滑出、被拒绝的调用不计数、非法参数抛 ValueError。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "test_code": "def test_limit():\n    clock = [0.0]\n    r = RateLimiter(3, 10, clock=lambda: clock[0])\n    assert [r.allow() for _ in range(4)] == [True, True, True, False]\n\ndef test_window_slides():\n    clock = [0.0]\n    r = RateLimiter(2, 10, clock=lambda: clock[0])\n    assert r.allow() and r.allow()\n    clock[0] = 5.0\n    assert r.allow() == False\n    clock[0] = 10.1\n    assert r.allow() == True\n\ndef test_boundary_exact():\n    clock = [100.0]\n    r = RateLimiter(1, 10, clock=lambda: clock[0])\n    assert r.allow() == True\n    clock[0] = 110.0\n    assert r.allow() == True\n\ndef test_rejected_not_counted():\n    clock = [0.0]\n    r = RateLimiter(1, 10, clock=lambda: clock[0])\n    assert r.allow() == True\n    assert r.allow() == False\n    assert r.allow() == False\n    clock[0] = 10.5\n    assert r.allow() == True\n\ndef test_invalid_args():\n    for args in ((0, 10), (3, 0), (-1, 5)):\n        try:\n            RateLimiter(*args, clock=lambda: 0.0)\n        except ValueError:\n            continue\n        raise AssertionError(f\"expected ValueError for {args}\")\n",
+      "role": "core"
+    },
+    {
+      "id": "CR-17",
+      "type": "code_repair",
+      "title": "四则运算表达式解析器",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "实现 `evaluate(expr)`：计算含 + - * / 和括号的算术表达式字符串。要求：\n1. 支持运算优先级、括号、一元负号（如 \"-3+5\"、\"-(2+3)*2\"）和小数。\n2. 除零抛出 ZeroDivisionError。\n3. 语法错误（如 \"1+\"、\"(1\"、\"abc\"、空串）抛出 ValueError。\n4. 不得使用 eval 或 exec。\n请给出完整实现和测试用例。",
+      "success_criteria": "通过测试：优先级与括号正确、一元负号正确、除零抛 ZeroDivisionError、非法表达式抛 ValueError、未使用 eval/exec。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "test_code": "def test_arithmetic():\n    assert evaluate(\"1+2*3\") == 7\n    assert evaluate(\"(1+2)*3\") == 9\n    assert abs(evaluate(\"10/4\") - 2.5) < 1e-9\n    assert evaluate(\"2*3+4*5\") == 26\n\ndef test_unary_minus():\n    assert evaluate(\"-3+5\") == 2\n    assert evaluate(\"-(2+3)*2\") == -10\n    assert evaluate(\"3*-2\") == -6\n\ndef test_division_by_zero():\n    try:\n        evaluate(\"1/0\")\n    except ZeroDivisionError:\n        pass\n    else:\n        raise AssertionError(\"expected ZeroDivisionError\")\n\ndef test_invalid_syntax():\n    for bad in (\"1+\", \"(1\", \"abc\", \"\", \"1 2\"):\n        try:\n            evaluate(bad)\n        except ValueError:\n            continue\n        raise AssertionError(f\"expected ValueError for {bad!r}\")\n",
+      "role": "core"
+    },
+    {
+      "id": "II-11",
+      "type": "information_integration",
+      "title": "三来源用户数据口径冲突",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "公司要上报产品的月活跃用户数（MAU），三个来源给出矛盾数据：\n1. 埋点平台：上月 MAU 120 万（基于设备去重日志）；\n2. 应用商店后台：上月活跃设备 80 万（仅统计通过商店安装的渠道）；\n3. 客服系统：注册账号总数 300 万（累计注册口径，含历史流失）。\n管理层要求明天给出\"一个数字\"用于对外披露。请分析三个数字的关系与口径差异，给出披露建议、核实步骤和不能做的事。",
+      "success_criteria": "识别三者统计口径不同（活跃设备/渠道子集/累计注册），不得简单取平均或任选其一；给出披露口径建议、核实步骤与合规风险说明。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "role": "core"
+    },
+    {
+      "id": "II-12",
+      "type": "information_integration",
+      "title": "培训排期隐藏不可行",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "安排下周的三场培训，约束如下：\n1. 课程《安全合规》必须由讲师 A 讲授，A 仅周二上午有空，且必须占用教室（线上不可）；\n2. 课程《代码评审》由讲师 B 讲授，B 周三全天或周四下午有空；\n3. 课程《数据库优化》由讲师 C 讲授，C 周二下午或周四上午有空；\n4. 教室 X 周二全天、周三上午可用；教室 Y 仅周四全天可用；每场培训占用一个教室半天；\n5. 《安全合规》和《数据库优化》的听众高度重合，不得安排在同一半天。\n请给出排期方案。",
+      "success_criteria": "正确发现《安全合规》只能排在周二上午教室 X，《数据库优化》受讲师 C 与听众冲突约束后与《安全合规》冲突，识别出三个课程在给定约束下无法全部排入，并给出至少两个明确的松弛方案（如调整听众重合约束或更换讲师）。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "role": "core"
+    },
+    {
+      "id": "II-13",
+      "type": "information_integration",
+      "title": "故障时间线跨源重建",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "一次线上故障后拿到三份日志，时间戳基准不一致：\n1. 应用日志（服务器 A，本地时间 UTC+8）：09:12 开始大量超时，09:15 服务不可用；\n2. 数据库慢查询日志（服务器 B，UTC）：01:05 起慢查询激增，01:10 连接池耗尽；\n3. 部署系统记录（服务器 C，UTC+8，但事后发现该机器时钟快 6 分钟）：09:20 有一次配置变更上线。\n请重建故障因果时间线，给出对齐假设、最可能的根因链，以及每条结论的置信度。",
+      "success_criteria": "显式处理时区差异（UTC vs UTC+8）和时钟漂移（+6 分钟），将三源事件对齐到统一时间轴；识别部署变更实际发生在 09:14（对齐后），介于超时开始与服务不可用之间；因果链排序合理并标注置信度。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "role": "core"
+    },
+    {
+      "id": "II-14",
+      "type": "information_integration",
+      "title": "预算硬约束不可行识别",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "部门年度预算 100 万元，必须覆盖三个刚性支出：\n1. 云服务合同续约：最低 55 万（已签三年框架协议，违约金 80 万）；\n2. 等保合规整改：最低 40 万（监管死线，不可延期）；\n3. 核心系统维保：最低 30 万（停止维保则厂商不再提供支持）。\n请给出预算分配方案。",
+      "success_criteria": "明确识别三项刚性支出合计 125 万超出 100 万预算，问题在给定约束下无可行解；不得给出三项全满足且总额 ≤100 万的虚假方案；给出至少两个可行的松弛路径（如申请追加预算、谈判续约条款、承担违约金的经济性比较）。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "role": "core"
+    },
+    {
+      "id": "DT-09",
+      "type": "dynamic_perturbation",
+      "title": "新品发布会策划（预算中途腰斩）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "为某消费电子新品策划发布会。初始要求：预算 50 万元，筹备期 6 周，线下 300 人规模 + 线上直播，需覆盖媒体邀请、场地、物料、直播推流与应急预案。请给出完整执行方案。",
+      "success_criteria": "扰动注入后，最终方案必须在 30 万元与 4 周的新约束下重新规划（不得沿用原 50 万/6 周方案的关键假设），明确哪些环节被削减或替换，并保留应急预案。",
+      "perturbation": "D1",
+      "perturbation_message": "执行中途新增关键约束：公司财务通知预算从 50 万元削减至 30 万元，且发布会必须提前至 4 周后举行（配合电商大促档期）。",
+      "reference_answer": null,
+      "role": "core"
+    },
+    {
+      "id": "DT-10",
+      "type": "dynamic_perturbation",
+      "title": "灾备演练方案（RTO 数据冲突）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "为核心支付系统设计年度灾备演练方案。初始资料：系统 RTO 目标 4 小时、RPO 5 分钟，已有异地双活架构。请给出演练范围、故障注入方式、验收标准和回退方案。",
+      "success_criteria": "识别两份监控报告关于历史恢复时间（4 小时 vs 15 分钟）的矛盾，显式说明在原始日志不可用时的处理策略（如按保守口径设计验收标准），演练方案与验收标准完整。",
+      "perturbation": "D2",
+      "perturbation_message": "执行中途关键资料出现冲突：运维团队的监控报告称去年故障实际恢复时间为 4 小时 10 分钟；但 SRE 团队的复盘报告称同类故障 15 分钟内恢复。两份报告口径矛盾，且原始日志因保留策略已不可查。",
+      "reference_answer": null,
+      "role": "core"
+    },
+    {
+      "id": "DT-11",
+      "type": "dynamic_perturbation",
+      "title": "渗透测试方案（资产清单缺网段）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "为一家互联网金融公司设计年度渗透测试方案。初始要求：覆盖全部对外暴露资产，周期 3 周，预算 40 万元，需符合监管要求并产出整改闭环。请给出测试范围、方法、分工与交付物。",
+      "success_criteria": "识别出资产清单缺少支付系统网段这一关键缺口，说明继续按旧清单执行的风险，给出补全清单或调整范围的恢复措施；最终方案覆盖范围、方法、交付物与合规要求。",
+      "perturbation": "D3",
+      "perturbation_message": "执行中途发现某关键 Agent 的阶段产出低质：安全工程师提交的资产清单遗漏了支付系统所在网段（10.20.0.0/16），且将两个已下线的测试域名列为重点目标。需要识别问题并恢复。",
+      "reference_answer": null,
+      "role": "core"
+    },
+    {
+      "id": "CHAIN-01",
+      "type": "chain_repair",
+      "title": "订单处理管道六阶段线性链修复",
+      "difficulty": "medium",
+      "coupling": "high",
+      "problem": "【订单处理管道修复（线性依赖链）】\n\n下面是一个订单记录处理管道：输入 CSV 文本（首行为表头，各列为 订单号,单价(元),数量），数据依次流经 6 个阶段：\n\n  stage1_parse      解析 CSV 为记录列表\n  stage2_validate   校验：数量必须为正，数量为 0 的记录作废\n  stage3_convert    单位换算：单价由元换算为分，并计算每单总额（分）\n  stage4_filter     过滤：只保留单价不低于 1 元（100 分）的订单（含边界）\n  stage5_aggregate  聚合：统计订单数与订单总金额\n  stage6_format     格式化：订单行按总额从高到低排列，末尾追加汇总行\n\n当前程序的 6 个阶段各被引入了一个 bug，端到端输出不正确。完整源码：\n\n```python\n# 订单记录处理管道\n# 流程: 解析 CSV -> 校验 -> 单位换算 -> 过滤 -> 聚合 -> 格式化输出\n\nMIN_TOTAL_CENTS = 100  # 最低订单单价（分），低于该单价的订单不计入统计\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 205 -> '2.05'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef stage1_parse(csv_text):\n    \"\"\"解析 CSV 文本（首行为表头，列为 订单号,单价(元),数量），返回记录列表。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    rows = lines[1:-1]\n    records = []\n    for ln in rows:\n        oid, price, qty = ln.split(\",\")\n        records.append({\"id\": oid.strip(), \"price\": price.strip(), \"qty\": int(qty)})\n    return records\n\n\ndef stage2_validate(records):\n    \"\"\"校验：数量必须为正整数，数量为 0 的记录作废。\"\"\"\n    return [r for r in records if r[\"qty\"] >= 0]\n\n\ndef stage3_convert(records):\n    \"\"\"单位换算：单价由元换算为分，并计算每单总额（分）。\"\"\"\n    for r in records:\n        r[\"price_cents\"] = int(float(r[\"price\"]) * 100)\n        r[\"total_cents\"] = r[\"price_cents\"] * r[\"qty\"]\n    return records\n\n\ndef stage4_filter(records):\n    \"\"\"过滤：只保留单价不低于 MIN_TOTAL_CENTS 的订单（含边界）。\"\"\"\n    return [r for r in records if r[\"price_cents\"] > MIN_TOTAL_CENTS]\n\n\ndef stage5_aggregate(records):\n    \"\"\"聚合：统计订单数与订单总金额（分）。\"\"\"\n    total = sum(r[\"price_cents\"] for r in records)\n    return {\"count\": len(records), \"total_cents\": total}\n\n\ndef stage6_format(records, summary):\n    \"\"\"格式化：订单行按总额从高到低排列，末尾追加汇总行。\"\"\"\n    ordered = sorted(records, key=lambda r: r[\"total_cents\"])\n    lines = [\"{}:{}\".format(r[\"id\"], money(r[\"total_cents\"])) for r in ordered]\n    lines.append(\"count={} total={}\".format(summary[\"count\"], money(summary[\"total_cents\"])))\n    return \"\\n\".join(lines)\n\n\ndef run_pipeline(csv_text):\n    records = stage1_parse(csv_text)\n    records = stage2_validate(records)\n    records = stage3_convert(records)\n    records = stage4_filter(records)\n    summary = stage5_aggregate(records)\n    return stage6_format(records, summary)\n\n```\n\n示例输入：\nid,price,qty\nA1001,2,1\nA1002,3,0\nA1003,2.05,1\nA1004,1,1\nA1005,2,2\n\n当前（错误的）端到端输出：\nA1002:0.00\nA1001:2.00\nA1003:2.04\ncount=3 total=7.04\n\n期望的正确输出：\nA1005:4.00\nA1003:2.05\nA1001:2.00\nA1004:1.00\ncount=4 total=9.05\n\n要求：定位并修复全部 6 个阶段的 bug，输出完整的修复后程序（保持各阶段函数接口与 run_pipeline 签名不变）。\n",
+      "success_criteria": "端到端测试全部通过",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": "# 订单记录处理管道\n# 流程: 解析 CSV -> 校验 -> 单位换算 -> 过滤 -> 聚合 -> 格式化输出\n\nMIN_TOTAL_CENTS = 100  # 最低订单单价（分），低于该单价的订单不计入统计\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 205 -> '2.05'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef stage1_parse(csv_text):\n    \"\"\"解析 CSV 文本（首行为表头，列为 订单号,单价(元),数量），返回记录列表。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    rows = lines[1:]\n    records = []\n    for ln in rows:\n        oid, price, qty = ln.split(\",\")\n        records.append({\"id\": oid.strip(), \"price\": price.strip(), \"qty\": int(qty)})\n    return records\n\n\ndef stage2_validate(records):\n    \"\"\"校验：数量必须为正整数，数量为 0 的记录作废。\"\"\"\n    return [r for r in records if r[\"qty\"] > 0]\n\n\ndef stage3_convert(records):\n    \"\"\"单位换算：单价由元换算为分，并计算每单总额（分）。\"\"\"\n    for r in records:\n        r[\"price_cents\"] = int(round(float(r[\"price\"]) * 100))\n        r[\"total_cents\"] = r[\"price_cents\"] * r[\"qty\"]\n    return records\n\n\ndef stage4_filter(records):\n    \"\"\"过滤：只保留单价不低于 MIN_TOTAL_CENTS 的订单（含边界）。\"\"\"\n    return [r for r in records if r[\"price_cents\"] >= MIN_TOTAL_CENTS]\n\n\ndef stage5_aggregate(records):\n    \"\"\"聚合：统计订单数与订单总金额（分）。\"\"\"\n    total = sum(r[\"total_cents\"] for r in records)\n    return {\"count\": len(records), \"total_cents\": total}\n\n\ndef stage6_format(records, summary):\n    \"\"\"格式化：订单行按总额从高到低排列，末尾追加汇总行。\"\"\"\n    ordered = sorted(records, key=lambda r: r[\"total_cents\"], reverse=True)\n    lines = [\"{}:{}\".format(r[\"id\"], money(r[\"total_cents\"])) for r in ordered]\n    lines.append(\"count={} total={}\".format(summary[\"count\"], money(summary[\"total_cents\"])))\n    return \"\\n\".join(lines)\n\n\ndef run_pipeline(csv_text):\n    records = stage1_parse(csv_text)\n    records = stage2_validate(records)\n    records = stage3_convert(records)\n    records = stage4_filter(records)\n    summary = stage5_aggregate(records)\n    return stage6_format(records, summary)\n",
+      "test_code": "def _sorted_lines(text):\n    return sorted(text.splitlines())\n\n\ndef test_stage_1():\n    out = run_pipeline(\"id,price,qty\\nA,2,1\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:2.00\\ncount=1 total=2.00\"), out\n\n\ndef test_stage_2():\n    out = run_pipeline(\"id,price,qty\\nA,2,1\\nB,3,0\\nC,4,1\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:2.00\\nC:4.00\\ncount=2 total=6.00\"), out\n\n\ndef test_stage_3():\n    out = run_pipeline(\"id,price,qty\\nA,2.05,1\\nB,5,0\\nC,2.50,1\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:2.05\\nC:2.50\\ncount=2 total=4.55\"), out\n\n\ndef test_stage_4():\n    out = run_pipeline(\"id,price,qty\\nA,1,1\\nB,9,0\\nC,2.05,1\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:1.00\\nC:2.05\\ncount=2 total=3.05\"), out\n\n\ndef test_stage_5():\n    out = run_pipeline(\"id,price,qty\\nA,2,2\\nB,9,0\\nC,1,1\\nD,2.05,1\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:4.00\\nC:1.00\\nD:2.05\\ncount=3 total=7.05\"), out\n\n\ndef test_stage_6():\n    out = run_pipeline(\"id,price,qty\\nP,2,1\\nQ,3,0\\nR,2.05,1\\nS,1,1\\nT,2,2\")\n    assert out == \"T:4.00\\nR:2.05\\nP:2.00\\nS:1.00\\ncount=4 total=9.05\", out\n",
+      "role": "core"
+    },
+    {
+      "id": "CHAIN-02",
+      "type": "chain_repair",
+      "title": "门店销售日报表管道乱序依赖链修复",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【门店销售日报表管道修复（高耦合依赖链）】\n\n下面是一个门店销售日报表管道：输入 CSV 文本（首行为表头，各列为 sku,单价(元),数量），数据依次流经 8 个阶段（解析 -> 校验 -> 富化 -> 生成标签 -> 去重 -> 渲染行 -> 分档小计 -> 汇总定稿），最终输出日报表文本。\n\n当前程序的 8 个阶段各被引入了一个 bug，端到端输出不正确。各阶段的设计意图见源码中的 docstring 与文件头部注释。完整源码：\n\n```python\n# 门店销售日报表管道\n# 流程: 解析 -> 校验 -> 富化(金额/档位) -> 生成标签 -> 去重 -> 渲染行 -> 分档小计 -> 汇总定稿\n# 输出格式：\n#   首行 \"rows=N\"，随后每行 \"<sku>|<tier>|<金额>\"（tier 为 A/B/C，金额为元，两位小数），\n#   末尾按 tier 字母序追加 \"subtotal[<tier>]=<小计>\" 行。\n\nTIER_A_MIN = 10000  # A 档订单总额下限（分）\nTIER_B_MIN = 4000   # B 档订单总额下限（分）\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 10000 -> '100.00'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef tier_of(amount_cents):\n    \"\"\"按订单总额（分）划分档位：A >= 100 元，B >= 40 元，其余 C。\"\"\"\n    if amount_cents >= TIER_A_MIN:\n        return \"A\"\n    if amount_cents >= TIER_B_MIN:\n        return \"B\"\n    return \"C\"\n\n\ndef stage1_parse(csv_text):\n    \"\"\"解析 CSV 文本（首行为表头，列为 sku,单价(元),数量），返回记录列表。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    rows = lines[2:]\n    records = []\n    for ln in rows:\n        sku, price, qty = ln.split(\",\")\n        records.append({\"sku\": sku.strip(), \"price\": price.strip(), \"qty\": qty.strip()})\n    return records\n\n\ndef stage2_validate(records):\n    \"\"\"校验：数量必须为正整数，数量不为正的记录作废。\"\"\"\n    return [r for r in records if int(r[\"qty\"]) >= 0]\n\n\ndef stage3_enrich(records):\n    \"\"\"富化：单价换算为分，计算订单总额，并按总额划分档位 tier。\"\"\"\n    for r in records:\n        r[\"qty\"] = int(r[\"qty\"])\n        r[\"price_cents\"] = int(round(float(r[\"price\"]) * 100))\n        r[\"amount_cents\"] = r[\"price_cents\"] * r[\"qty\"]\n        r[\"tier\"] = tier_of(r[\"price_cents\"])\n    return records\n\n\ndef stage4_label(records):\n    \"\"\"生成报表标签：格式为 '<sku>#<tier>'（stage6 按 '#' 拆列渲染）。\"\"\"\n    for r in records:\n        r[\"label\"] = r[\"sku\"] + \"-\" + r[\"tier\"]\n    return records\n\n\ndef stage5_dedupe(records):\n    \"\"\"按 label 去重：同一标签的重复记录只保留第一次出现的那条。\"\"\"\n    seen = {}\n    for r in records:\n        seen[r[\"label\"]] = r\n    return list(seen.values())\n\n\ndef stage6_render_rows(records):\n    \"\"\"渲染订单行：把 label 按 '#' 拆回 sku 与 tier，输出 '<sku>|<tier>|<金额>'。\"\"\"\n    lines = []\n    for r in records:\n        sku, tier = r[\"label\"].split(\"-\")\n        lines.append(\"{}|{}|{}\".format(sku, tier, money(r[\"amount_cents\"])))\n    return lines\n\n\ndef stage7_subtotals(records):\n    \"\"\"分档小计：按 tier 累计订单总额（分），返回 {tier: 小计}。\"\"\"\n    sub = {}\n    for r in records:\n        t = r[\"tier\"]\n        sub[t] = r[\"amount_cents\"]\n    return sub\n\n\ndef stage8_finalize(row_lines, sub):\n    \"\"\"定稿：首行 rows=N，随后订单行，末尾按 tier 字母序追加小计行。\"\"\"\n    out = [\"rows={}\".format(len(row_lines))]\n    out.extend(row_lines)\n    for t in sub:\n        out.append(\"subtotal[{}]={}\".format(t, money(sub[t])))\n    return \"\\n\".join(out)\n\n\ndef run_pipeline(csv_text):\n    records = stage1_parse(csv_text)\n    records = stage2_validate(records)\n    records = stage3_enrich(records)\n    records = stage4_label(records)\n    records = stage5_dedupe(records)\n    row_lines = stage6_render_rows(records)\n    sub = stage7_subtotals(records)\n    return stage8_finalize(row_lines, sub)\n\n```\n\n示例输入：\nsku,price,qty\nSKU1001,10.00,1\nSKU1002,50.00,2\nSKU1003,60.00,2\nSKU1004,1.00,0\nSKU1005,50.00,2\nSKU1006,30.00,1\n\n当前（错误的）端到端输出：\nrows=5\nSKU1002|B|100.00\nSKU1003|B|120.00\nSKU1004|C|0.00\nSKU1005|B|100.00\nSKU1006|C|30.00\nsubtotal[B]=100.00\nsubtotal[C]=30.00\n\n注意：某些阶段的 bug 相互纠缠，孤立地\"按注释修复\"单个阶段可能让端到端输出变得更糟；修复时需要通盘考虑上下游阶段之间的数据约定。\n\n要求：定位并修复全部 8 个阶段的 bug，输出完整的修复后程序（保持各阶段函数接口与 run_pipeline 签名不变）。\n",
+      "success_criteria": "端到端测试全部通过",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": "# 门店销售日报表管道\n# 流程: 解析 -> 校验 -> 富化(金额/档位) -> 生成标签 -> 去重 -> 渲染行 -> 分档小计 -> 汇总定稿\n# 输出格式：\n#   首行 \"rows=N\"，随后每行 \"<sku>|<tier>|<金额>\"（tier 为 A/B/C，金额为元，两位小数），\n#   末尾按 tier 字母序追加 \"subtotal[<tier>]=<小计>\" 行。\n\nTIER_A_MIN = 10000  # A 档订单总额下限（分）\nTIER_B_MIN = 4000   # B 档订单总额下限（分）\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 10000 -> '100.00'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef tier_of(amount_cents):\n    \"\"\"按订单总额（分）划分档位：A >= 100 元，B >= 40 元，其余 C。\"\"\"\n    if amount_cents >= TIER_A_MIN:\n        return \"A\"\n    if amount_cents >= TIER_B_MIN:\n        return \"B\"\n    return \"C\"\n\n\ndef stage1_parse(csv_text):\n    \"\"\"解析 CSV 文本（首行为表头，列为 sku,单价(元),数量），返回记录列表。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    rows = lines[1:]\n    records = []\n    for ln in rows:\n        sku, price, qty = ln.split(\",\")\n        records.append({\"sku\": sku.strip(), \"price\": price.strip(), \"qty\": qty.strip()})\n    return records\n\n\ndef stage2_validate(records):\n    \"\"\"校验：数量必须为正整数，数量不为正的记录作废。\"\"\"\n    return [r for r in records if int(r[\"qty\"]) > 0]\n\n\ndef stage3_enrich(records):\n    \"\"\"富化：单价换算为分，计算订单总额，并按总额划分档位 tier。\"\"\"\n    for r in records:\n        r[\"qty\"] = int(r[\"qty\"])\n        r[\"price_cents\"] = int(round(float(r[\"price\"]) * 100))\n        r[\"amount_cents\"] = r[\"price_cents\"] * r[\"qty\"]\n        r[\"tier\"] = tier_of(r[\"amount_cents\"])\n    return records\n\n\ndef stage4_label(records):\n    \"\"\"生成报表标签：格式为 '<sku>#<tier>'（stage6 按 '#' 拆列渲染）。\"\"\"\n    for r in records:\n        r[\"label\"] = r[\"sku\"] + \"#\" + r[\"tier\"]\n    return records\n\n\ndef stage5_dedupe(records):\n    \"\"\"按 label 去重：同一标签的重复记录只保留第一次出现的那条。\"\"\"\n    seen = {}\n    for r in records:\n        if r[\"label\"] not in seen:\n            seen[r[\"label\"]] = r\n    return list(seen.values())\n\n\ndef stage6_render_rows(records):\n    \"\"\"渲染订单行：把 label 按 '#' 拆回 sku 与 tier，输出 '<sku>|<tier>|<金额>'。\"\"\"\n    lines = []\n    for r in records:\n        sku, tier = r[\"label\"].split(\"#\")\n        lines.append(\"{}|{}|{}\".format(sku, tier, money(r[\"amount_cents\"])))\n    return lines\n\n\ndef stage7_subtotals(records):\n    \"\"\"分档小计：按 tier 累计订单总额（分），返回 {tier: 小计}。\"\"\"\n    sub = {}\n    for r in records:\n        t = r[\"tier\"]\n        sub[t] = sub.get(t, 0) + r[\"amount_cents\"]\n    return sub\n\n\ndef stage8_finalize(row_lines, sub):\n    \"\"\"定稿：首行 rows=N，随后订单行，末尾按 tier 字母序追加小计行。\"\"\"\n    out = [\"rows={}\".format(len(row_lines))]\n    out.extend(row_lines)\n    for t in sorted(sub):\n        out.append(\"subtotal[{}]={}\".format(t, money(sub[t])))\n    return \"\\n\".join(out)\n\n\ndef run_pipeline(csv_text):\n    records = stage1_parse(csv_text)\n    records = stage2_validate(records)\n    records = stage3_enrich(records)\n    records = stage4_label(records)\n    records = stage5_dedupe(records)\n    row_lines = stage6_render_rows(records)\n    sub = stage7_subtotals(records)\n    return stage8_finalize(row_lines, sub)\n",
+      "test_code": "def test_stage_1():\n    out = run_pipeline(\"sku,price,qty\\nSKU1,30.00,1\")\n    assert out == \"rows=1\\nSKU1|C|30.00\\nsubtotal[C]=30.00\", out\n\n\ndef test_stage_2():\n    out = run_pipeline(\"sku,price,qty\\nSKU1,50.00,1\\nSKU2,20.00,0\")\n    assert out == \"rows=1\\nSKU1|B|50.00\\nsubtotal[B]=50.00\", out\n\n\ndef test_stage_3():\n    out = run_pipeline(\"sku,price,qty\\nSKU1,50.00,2\\nSKU2,10.00,0\")\n    assert out == \"rows=1\\nSKU1|A|100.00\\nsubtotal[A]=100.00\", out\n\n\ndef test_stage_4():\n    out = run_pipeline(\"sku,price,qty\\nSKU4,50.00,2\\nSKU2,10.00,0\")\n    assert out == \"rows=1\\nSKU4|A|100.00\\nsubtotal[A]=100.00\", out\n\n\ndef test_stage_5():\n    out = run_pipeline(\"sku,price,qty\\nSKU5,50.00,2\\nSKU5,60.00,2\\nSKU3,10.00,0\")\n    assert out == \"rows=1\\nSKU5|A|100.00\\nsubtotal[A]=100.00\", out\n\n\ndef test_stage_6():\n    out = run_pipeline(\"sku,price,qty\\nSKU6,50.00,2\\nSKU6B,50.00,1\\nSKU0,1.00,0\")\n    assert out == \"rows=2\\nSKU6|A|100.00\\nSKU6B|B|50.00\\nsubtotal[A]=100.00\\nsubtotal[B]=50.00\", out\n\n\ndef test_stage_7():\n    out = run_pipeline(\"sku,price,qty\\nSKU7,50.00,2\\nSKU8,60.00,2\\nSKU0,1.00,0\")\n    assert out == \"rows=2\\nSKU7|A|100.00\\nSKU8|A|120.00\\nsubtotal[A]=220.00\", out\n\n\ndef test_stage_8():\n    out = run_pipeline(\"sku,price,qty\\nSKU9,10.00,1\\nSKU10,50.00,2\\nSKU0,1.00,0\")\n    assert out == \"rows=2\\nSKU9|C|10.00\\nSKU10|A|100.00\\nsubtotal[A]=100.00\\nsubtotal[C]=10.00\", out\n",
+      "role": "core"
+    },
+    {
+      "id": "CHAIN-03",
+      "type": "chain_repair",
+      "title": "国内国际订单双链汇合管道修复",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【国内/国际订单合并统计管道修复（双链汇合）】\n\n下面是一个订单合并统计管道，包含两条独立的处理分支和一个汇合阶段：\n\n  国内分支  d1_parse -> d2_convert -> d3_classify   （价格单位：元人民币，分 A/B 两类）\n  国际分支  i1_parse -> i2_convert -> i3_classify   （价格单位：美元，分 A/B/C 三类，C 为大额需报关档）\n  汇合      merge_report：按类别合并两条分支的统计结果并输出报表\n\n两条分支各自独立，可以并行排查；但汇合阶段的正确性依赖两条分支各自的输出约定。\n\n当前程序的 7 个阶段（国内 3 个 + 国际 3 个 + 汇合 1 个）各被引入了一个 bug，端到端输出不正确。完整源码：\n\n```python\n# 国内/国际订单合并统计管道\n# 国内分支: d1_parse -> d2_convert -> d3_classify  （价格单位：元人民币）\n# 国际分支: i1_parse -> i2_convert -> i3_classify  （价格单位：美元）\n# 汇合:    merge_report 按类别合并两条分支的统计结果\n# 分类约定：国内订单分 A/B 两类；国际订单分 A/B/C 三类（C 为大额需报关档，国际特有）。\n# 输出格式：按类别字母序每行 \"<cat>: domestic=<d> intl=<i> total=<t>\"，末尾 \"grand=<总计>\"（金额单位：元，两位小数）。\n\nDOM_A_MIN = 20000      # 国内 A 类下限（分）\nINTL_A_MIN = 20000     # 国际 A 类下限（分）\nINTL_C_MIN = 50000     # 国际 C 类（大额需报关）下限（分）\nUSD_RATE_CENTS = 800   # 汇率：1 美元 = 800 分人民币\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 15199 -> '151.99'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef d1_parse(csv_text):\n    \"\"\"解析国内订单 CSV（首行为表头，列为 订单号,单价(元),数量）。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    data_lines = lines[1:]\n    records = []\n    for ln in data_lines:\n        parts = [p.strip() for p in ln.split(\",\")]\n        records.append({\"id\": parts[0], \"price\": parts[1], \"qty\": 1})\n    return records\n\n\ndef d2_convert(records):\n    \"\"\"国内订单单位换算：单价元 -> 分，计算每单总额（分）。\"\"\"\n    for r in records:\n        r[\"total_cents\"] = int(float(r[\"price\"])) * 100 * r[\"qty\"]\n    return records\n\n\ndef d3_classify(records):\n    \"\"\"国内订单分类汇总：总额 >= DOM_A_MIN 为 A 类，否则 B 类，返回 {类别: 总额(分)}。\"\"\"\n    totals = {}\n    for r in records:\n        cat = \"A\" if r[\"total_cents\"] >= 10000 else \"B\"\n        totals[cat] = totals.get(cat, 0) + r[\"total_cents\"]\n    return totals\n\n\ndef i1_parse(csv_text):\n    \"\"\"解析国际订单 CSV（首行为表头，列为 订单号,单价(美元),数量）。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    rows = lines[2:]\n    records = []\n    for ln in rows:\n        parts = [p.strip() for p in ln.split(\",\")]\n        records.append({\"id\": parts[0], \"price_usd\": parts[1], \"qty\": int(parts[2])})\n    return records\n\n\ndef i2_convert(records):\n    \"\"\"国际订单单位换算：单价美元 -> 人民币分，计算每单总额（分）。\"\"\"\n    for r in records:\n        r[\"total_cents\"] = round(float(r[\"price_usd\"])) * USD_RATE_CENTS * r[\"qty\"]\n    return records\n\n\ndef i3_classify(records):\n    \"\"\"国际订单分类汇总：>= INTL_C_MIN 为 C 类，>= INTL_A_MIN 为 A 类，否则 B 类。\"\"\"\n    totals = {}\n    for r in records:\n        if r[\"total_cents\"] >= INTL_C_MIN:\n            cat = \"C\"\n        elif r[\"total_cents\"] > INTL_A_MIN:\n            cat = \"A\"\n        else:\n            cat = \"B\"\n        totals[cat] = totals.get(cat, 0) + r[\"total_cents\"]\n    return totals\n\n\ndef merge_report(d_totals, i_totals):\n    \"\"\"汇合：按类别合并两条分支的统计（类别取两边并集），末尾追加总计行。\"\"\"\n    lines = []\n    grand = 0\n    for cat in sorted(d_totals):\n        dv = d_totals.get(cat, 0)\n        iv = i_totals.get(cat, 0)\n        grand += dv + iv\n        lines.append(\"{}: domestic={} intl={} total={}\".format(cat, money(dv), money(iv), money(dv + iv)))\n    lines.append(\"grand={}\".format(money(grand)))\n    return \"\\n\".join(lines)\n\n\ndef run_pipeline(domestic_csv, intl_csv):\n    d = d3_classify(d2_convert(d1_parse(domestic_csv)))\n    i = i3_classify(i2_convert(i1_parse(intl_csv)))\n    return merge_report(d, i)\n\n```\n\n示例输入（国内订单）：\noid,price,qty\nD1001,50.00,3\nD1002,1.99,1\n\n示例输入（国际订单）：\noid,price_usd,qty\nI1001,25.00,1\nI1002,100.00,1\n\n当前（错误的）端到端输出：\nB: domestic=51.00 intl=0.00 total=51.00\ngrand=51.00\n\n期望的正确输出：\nA: domestic=0.00 intl=200.00 total=200.00\nB: domestic=151.99 intl=0.00 total=151.99\nC: domestic=0.00 intl=800.00 total=800.00\ngrand=1151.99\n\n要求：定位并修复全部 7 个阶段的 bug，输出完整的修复后程序（保持各阶段函数接口与 run_pipeline 签名不变）。\n",
+      "success_criteria": "端到端测试全部通过",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": "# 国内/国际订单合并统计管道\n# 国内分支: d1_parse -> d2_convert -> d3_classify  （价格单位：元人民币）\n# 国际分支: i1_parse -> i2_convert -> i3_classify  （价格单位：美元）\n# 汇合:    merge_report 按类别合并两条分支的统计结果\n# 分类约定：国内订单分 A/B 两类；国际订单分 A/B/C 三类（C 为大额需报关档，国际特有）。\n# 输出格式：按类别字母序每行 \"<cat>: domestic=<d> intl=<i> total=<t>\"，末尾 \"grand=<总计>\"（金额单位：元，两位小数）。\n\nDOM_A_MIN = 20000      # 国内 A 类下限（分）\nINTL_A_MIN = 20000     # 国际 A 类下限（分）\nINTL_C_MIN = 50000     # 国际 C 类（大额需报关）下限（分）\nUSD_RATE_CENTS = 800   # 汇率：1 美元 = 800 分人民币\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 15199 -> '151.99'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef d1_parse(csv_text):\n    \"\"\"解析国内订单 CSV（首行为表头，列为 订单号,单价(元),数量）。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    data_lines = lines[1:]\n    records = []\n    for ln in data_lines:\n        parts = [p.strip() for p in ln.split(\",\")]\n        records.append({\"id\": parts[0], \"price\": parts[1], \"qty\": int(parts[2])})\n    return records\n\n\ndef d2_convert(records):\n    \"\"\"国内订单单位换算：单价元 -> 分，计算每单总额（分）。\"\"\"\n    for r in records:\n        r[\"total_cents\"] = int(round(float(r[\"price\"]) * 100)) * r[\"qty\"]\n    return records\n\n\ndef d3_classify(records):\n    \"\"\"国内订单分类汇总：总额 >= DOM_A_MIN 为 A 类，否则 B 类，返回 {类别: 总额(分)}。\"\"\"\n    totals = {}\n    for r in records:\n        cat = \"A\" if r[\"total_cents\"] >= DOM_A_MIN else \"B\"\n        totals[cat] = totals.get(cat, 0) + r[\"total_cents\"]\n    return totals\n\n\ndef i1_parse(csv_text):\n    \"\"\"解析国际订单 CSV（首行为表头，列为 订单号,单价(美元),数量）。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    rows = lines[1:]\n    records = []\n    for ln in rows:\n        parts = [p.strip() for p in ln.split(\",\")]\n        records.append({\"id\": parts[0], \"price_usd\": parts[1], \"qty\": int(parts[2])})\n    return records\n\n\ndef i2_convert(records):\n    \"\"\"国际订单单位换算：单价美元 -> 人民币分，计算每单总额（分）。\"\"\"\n    for r in records:\n        r[\"total_cents\"] = int(round(float(r[\"price_usd\"]) * USD_RATE_CENTS)) * r[\"qty\"]\n    return records\n\n\ndef i3_classify(records):\n    \"\"\"国际订单分类汇总：>= INTL_C_MIN 为 C 类，>= INTL_A_MIN 为 A 类，否则 B 类。\"\"\"\n    totals = {}\n    for r in records:\n        if r[\"total_cents\"] >= INTL_C_MIN:\n            cat = \"C\"\n        elif r[\"total_cents\"] >= INTL_A_MIN:\n            cat = \"A\"\n        else:\n            cat = \"B\"\n        totals[cat] = totals.get(cat, 0) + r[\"total_cents\"]\n    return totals\n\n\ndef merge_report(d_totals, i_totals):\n    \"\"\"汇合：按类别合并两条分支的统计（类别取两边并集），末尾追加总计行。\"\"\"\n    lines = []\n    grand = 0\n    for cat in sorted(set(d_totals) | set(i_totals)):\n        dv = d_totals.get(cat, 0)\n        iv = i_totals.get(cat, 0)\n        grand += dv + iv\n        lines.append(\"{}: domestic={} intl={} total={}\".format(cat, money(dv), money(iv), money(dv + iv)))\n    lines.append(\"grand={}\".format(money(grand)))\n    return \"\\n\".join(lines)\n\n\ndef run_pipeline(domestic_csv, intl_csv):\n    d = d3_classify(d2_convert(d1_parse(domestic_csv)))\n    i = i3_classify(i2_convert(i1_parse(intl_csv)))\n    return merge_report(d, i)\n",
+      "test_code": "INTL_EMPTY = \"oid,price_usd,qty\"\n\n\ndef test_stage_1():\n    out = run_pipeline(\"oid,price,qty\\nD1,10.00,3\", INTL_EMPTY)\n    assert out == \"B: domestic=30.00 intl=0.00 total=30.00\\ngrand=30.00\", out\n\n\ndef test_stage_2():\n    out = run_pipeline(\"oid,price,qty\\nD1,10.00,2\\nD2,1.99,1\", INTL_EMPTY)\n    assert out == \"B: domestic=21.99 intl=0.00 total=21.99\\ngrand=21.99\", out\n\n\ndef test_stage_3():\n    out = run_pipeline(\"oid,price,qty\\nD1,50.00,3\\nD2,1.99,1\", INTL_EMPTY)\n    assert out == \"B: domestic=151.99 intl=0.00 total=151.99\\ngrand=151.99\", out\n\n\ndef test_stage_4():\n    out = run_pipeline(\"oid,price,qty\\nD1,200.00,1\", \"oid,price_usd,qty\\nI1,30.00,1\")\n    assert out == \"A: domestic=200.00 intl=240.00 total=440.00\\ngrand=440.00\", out\n\n\ndef test_stage_5():\n    out = run_pipeline(\"oid,price,qty\\nD1,200.00,1\", \"oid,price_usd,qty\\nI1,25.75,1\")\n    assert out == \"A: domestic=200.00 intl=206.00 total=406.00\\ngrand=406.00\", out\n\n\ndef test_stage_6():\n    out = run_pipeline(\"oid,price,qty\\nD1,200.00,1\", \"oid,price_usd,qty\\nI1,25.00,1\")\n    assert out == \"A: domestic=200.00 intl=200.00 total=400.00\\ngrand=400.00\", out\n\n\ndef test_stage_7():\n    out = run_pipeline(\n        \"oid,price,qty\\nD1,200.00,1\",\n        \"oid,price_usd,qty\\nI1,25.00,1\\nI2,100.00,1\",\n    )\n    assert out == (\n        \"A: domestic=200.00 intl=200.00 total=400.00\\n\"\n        \"C: domestic=0.00 intl=800.00 total=800.00\\n\"\n        \"grand=1200.00\"\n    ), out\n",
+      "role": "core"
+    },
+    {
+      "id": "GEN-01",
+      "type": "exact_match",
+      "title": "多文档多跳针毡（生成式）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【生成式任务】5 份含大量干扰实体的公司内部文档，答案需要 3–4 跳关联（如：某项目负责人所在部门上季度的预算缺口）。每次运行随机生成全新实例，无法靠记忆作答。\n（实际题目材料在每次运行时由平台按随机种子生成，此处仅为题型说明。）",
+      "success_criteria": "最终答案与生成实例的唯一解完全一致（由精确匹配评分器客观判定）。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "generator": "multi_hop",
+      "role": "core"
+    },
+    {
+      "id": "GEN-02",
+      "type": "exact_match",
+      "title": "逻辑网格谜题（生成式）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【生成式任务】5 人 × 3 属性排期谜题，12 条线索（含否定式与条件式），唯一解。每次运行随机生成全新实例。\n（实际题目材料在每次运行时由平台按随机种子生成，此处仅为题型说明。）",
+      "success_criteria": "最终答案与生成实例的唯一解完全一致（由精确匹配评分器客观判定）。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "generator": "logic_grid",
+      "role": "core"
+    },
+    {
+      "id": "GEN-03",
+      "type": "exact_match",
+      "title": "库存长链模拟（生成式）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【生成式任务】4–6 个 SKU、25–35 步含条件分支的出入库操作序列，问最终库存。一步算错全链错。每次运行随机生成全新实例。\n（实际题目材料在每次运行时由平台按随机种子生成，此处仅为题型说明。）",
+      "success_criteria": "最终答案与生成实例的唯一解完全一致（由精确匹配评分器客观判定）。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "generator": "inventory_sim",
+      "role": "core"
+    },
+    {
+      "id": "GEN-04",
+      "type": "exact_match",
+      "title": "依赖图排期与关键路径（生成式）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【生成式任务】12–15 个任务的 DAG + 资源冲突约束（含看似可并行实则冲突的陷阱），求最短工期与关键路径。每次运行随机生成全新实例。\n（实际题目材料在每次运行时由平台按随机种子生成，此处仅为题型说明。）",
+      "success_criteria": "最终答案与生成实例的唯一解完全一致（由精确匹配评分器客观判定）。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": null,
+      "generator": "dag_schedule",
+      "role": "core"
+    },
+    {
+      "id": "DCHAIN-01",
+      "type": "chain_repair",
+      "title": "订单管道修复（中途变更过滤阈值）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【订单处理管道修复（线性依赖链）】\n\n下面是一个订单记录处理管道：输入 CSV 文本（首行为表头，各列为 订单号,单价(元),数量），数据依次流经 6 个阶段：\n\n  stage1_parse      解析 CSV 为记录列表\n  stage2_validate   校验：数量必须为正，数量为 0 的记录作废\n  stage3_convert    单位换算：单价由元换算为分，并计算每单总额（分）\n  stage4_filter     过滤：只保留单价不低于 1 元（100 分）的订单（含边界）\n  stage5_aggregate  聚合：统计订单数与订单总金额\n  stage6_format     格式化：订单行按总额从高到低排列，末尾追加汇总行\n\n当前程序的 6 个阶段各被引入了一个 bug，端到端输出不正确。完整源码：\n\n```python\n# 订单记录处理管道\n# 流程: 解析 CSV -> 校验 -> 单位换算 -> 过滤 -> 聚合 -> 格式化输出\n\nMIN_TOTAL_CENTS = 100  # 最低订单单价（分），低于该单价的订单不计入统计\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 205 -> '2.05'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef stage1_parse(csv_text):\n    \"\"\"解析 CSV 文本（首行为表头，列为 订单号,单价(元),数量），返回记录列表。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    rows = lines[1:-1]\n    records = []\n    for ln in rows:\n        oid, price, qty = ln.split(\",\")\n        records.append({\"id\": oid.strip(), \"price\": price.strip(), \"qty\": int(qty)})\n    return records\n\n\ndef stage2_validate(records):\n    \"\"\"校验：数量必须为正整数，数量为 0 的记录作废。\"\"\"\n    return [r for r in records if r[\"qty\"] >= 0]\n\n\ndef stage3_convert(records):\n    \"\"\"单位换算：单价由元换算为分，并计算每单总额（分）。\"\"\"\n    for r in records:\n        r[\"price_cents\"] = int(float(r[\"price\"]) * 100)\n        r[\"total_cents\"] = r[\"price_cents\"] * r[\"qty\"]\n    return records\n\n\ndef stage4_filter(records):\n    \"\"\"过滤：只保留单价不低于 MIN_TOTAL_CENTS 的订单（含边界）。\"\"\"\n    return [r for r in records if r[\"price_cents\"] > MIN_TOTAL_CENTS]\n\n\ndef stage5_aggregate(records):\n    \"\"\"聚合：统计订单数与订单总金额（分）。\"\"\"\n    total = sum(r[\"price_cents\"] for r in records)\n    return {\"count\": len(records), \"total_cents\": total}\n\n\ndef stage6_format(records, summary):\n    \"\"\"格式化：订单行按总额从高到低排列，末尾追加汇总行。\"\"\"\n    ordered = sorted(records, key=lambda r: r[\"total_cents\"])\n    lines = [\"{}:{}\".format(r[\"id\"], money(r[\"total_cents\"])) for r in ordered]\n    lines.append(\"count={} total={}\".format(summary[\"count\"], money(summary[\"total_cents\"])))\n    return \"\\n\".join(lines)\n\n\ndef run_pipeline(csv_text):\n    records = stage1_parse(csv_text)\n    records = stage2_validate(records)\n    records = stage3_convert(records)\n    records = stage4_filter(records)\n    summary = stage5_aggregate(records)\n    return stage6_format(records, summary)\n\n```\n\n示例输入：\nid,price,qty\nA1001,2,1\nA1002,3,0\nA1003,2.05,1\nA1004,1,1\nA1005,2,2\n\n当前（错误的）端到端输出：\nA1002:0.00\nA1001:2.00\nA1003:2.04\ncount=3 total=7.04\n\n期望的正确输出：\nA1005:4.00\nA1003:2.05\nA1001:2.00\nA1004:1.00\ncount=4 total=9.05\n\n要求：定位并修复全部 6 个阶段的 bug，输出完整的修复后程序（保持各阶段函数接口与 run_pipeline 签名不变）。\n",
+      "success_criteria": "扰动注入后，最终修复版必须按新门槛（单价≥5元/500分）过滤且全部分层测试通过；沿用旧门槛（100 分）的修复视为未适应扰动。",
+      "perturbation": "D1",
+      "perturbation_message": "执行中途需求变更：过滤阶段的最低单价门槛从 1 元（100 分）提高到 5 元（500 分），其余规则不变。请按新门槛完成全部修复，并显式说明受影响的阶段。",
+      "reference_answer": "# 订单记录处理管道\n# 流程: 解析 CSV -> 校验 -> 单位换算 -> 过滤 -> 聚合 -> 格式化输出\n\nMIN_TOTAL_CENTS = 500  # 最低订单单价（分），低于该单价的订单不计入统计\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 205 -> '2.05'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef stage1_parse(csv_text):\n    \"\"\"解析 CSV 文本（首行为表头，列为 订单号,单价(元),数量），返回记录列表。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    rows = lines[1:]\n    records = []\n    for ln in rows:\n        oid, price, qty = ln.split(\",\")\n        records.append({\"id\": oid.strip(), \"price\": price.strip(), \"qty\": int(qty)})\n    return records\n\n\ndef stage2_validate(records):\n    \"\"\"校验：数量必须为正整数，数量为 0 的记录作废。\"\"\"\n    return [r for r in records if r[\"qty\"] > 0]\n\n\ndef stage3_convert(records):\n    \"\"\"单位换算：单价由元换算为分，并计算每单总额（分）。\"\"\"\n    for r in records:\n        r[\"price_cents\"] = int(round(float(r[\"price\"]) * 100))\n        r[\"total_cents\"] = r[\"price_cents\"] * r[\"qty\"]\n    return records\n\n\ndef stage4_filter(records):\n    \"\"\"过滤：只保留单价不低于 MIN_TOTAL_CENTS 的订单（含边界）。\"\"\"\n    return [r for r in records if r[\"price_cents\"] >= MIN_TOTAL_CENTS]\n\n\ndef stage5_aggregate(records):\n    \"\"\"聚合：统计订单数与订单总金额（分）。\"\"\"\n    total = sum(r[\"total_cents\"] for r in records)\n    return {\"count\": len(records), \"total_cents\": total}\n\n\ndef stage6_format(records, summary):\n    \"\"\"格式化：订单行按总额从高到低排列，末尾追加汇总行。\"\"\"\n    ordered = sorted(records, key=lambda r: r[\"total_cents\"], reverse=True)\n    lines = [\"{}:{}\".format(r[\"id\"], money(r[\"total_cents\"])) for r in ordered]\n    lines.append(\"count={} total={}\".format(summary[\"count\"], money(summary[\"total_cents\"])))\n    return \"\\n\".join(lines)\n\n\ndef run_pipeline(csv_text):\n    records = stage1_parse(csv_text)\n    records = stage2_validate(records)\n    records = stage3_convert(records)\n    records = stage4_filter(records)\n    summary = stage5_aggregate(records)\n    return stage6_format(records, summary)\n",
+      "test_code": "\ndef _sorted_lines(text):\n    return sorted(text.splitlines())\n\n\ndef test_stage_1():\n    out = run_pipeline(\"id,price,qty\\nA,6,1\\nB,8,2\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:6.00\\nB:16.00\\ncount=2 total=22.00\"), out\n\n\ndef test_stage_2():\n    out = run_pipeline(\"id,price,qty\\nA,6,1\\nB,7,0\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:6.00\\ncount=1 total=6.00\"), out\n\n\ndef test_stage_3():\n    out = run_pipeline(\"id,price,qty\\nA,5.05,1\\nB,9,0\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:5.05\\ncount=1 total=5.05\"), out\n\n\ndef test_stage_4():\n    out = run_pipeline(\"id,price,qty\\nA,5,1\\nB,4.99,1\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:5.00\\ncount=1 total=5.00\"), out\n\n\ndef test_stage_5():\n    out = run_pipeline(\"id,price,qty\\nA,6,2\\nB,5,1\")\n    assert _sorted_lines(out) == _sorted_lines(\"A:12.00\\nB:5.00\\ncount=2 total=17.00\"), out\n\n\ndef test_stage_6():\n    out = run_pipeline(\"id,price,qty\\nA,6,1\\nB,8,2\")\n    assert out == \"B:16.00\\nA:6.00\\ncount=2 total=22.00\", out\n",
+      "role": "core"
+    },
+    {
+      "id": "DCHAIN-02",
+      "type": "dynamic_perturbation",
+      "title": "多跳问答（中途文档撤回更正）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "以下是五份公司内部文档片段：\n\n【项目周报摘录】「灯塔」项目本周完成数据迁移第一阶段，负责人王珊汇报了进度风险；「曙光」项目负责人李强汇报了推广计划；「磐石」项目负责人赵磊汇报延期原因。\n\n【人事通知】王珊，数据平台部高级经理；李强，市场拓展部总监；赵磊，供应链管理部经理；陈晨，质量保障部主管。\n\n【分管关系通知】数据平台部向 CTO 线汇报；市场拓展部向销售 VP 线汇报。\n\n【季度财务快报】各部门上季度预算执行（单位：万元）：数据平台部：批复预算 620，实际支出 680；市场拓展部：批复 540，实际支出 550；供应链管理部：批复 490，实际支出 510；质量保障部：批复 710，实际支出 685。\n\n【行政通知】本年度会议室预定规则调整……（与问题无关的行政细节若干）\n\n问题：「灯塔」项目负责人所在部门，上季度的预算缺口（实际支出 − 批复预算）是多少万元？若实际支出低于批复预算，缺口为负数。\n\n在回答最后用 ```json 代码块输出：{\"最终答案\": <数字>}",
+      "success_criteria": "扰动注入后，最终答案必须使用更正后的财务数据（实际支出 590 万元），即答案为 -30；沿用撤回前数据（60）视为未适应扰动；过程需显式说明撤回文档的处理。",
+      "perturbation": "D2",
+      "perturbation_message": "执行中途关键资料撤回更正：【季度财务快报】被财务部门撤回，更正版为——数据平台部上季度实际支出为 590 万元（原 680 万元为口径错误），其余部门数字不变。请基于更正后的资料修订你的答案。",
+      "reference_answer": "「灯塔」负责人是王珊（数据平台部）；更正后该部门上季度实际支出 590 万元、批复预算 620 万元，缺口 = 590 - 620 = -30 万元（即结余 30 万元）。",
+      "answer_spec": {
+        "kind": "value",
+        "value": -30
+      },
+      "role": "core"
+    },
+    {
+      "id": "CHAIN-04",
+      "type": "chain_repair",
+      "title": "物流运单对账管道十二阶段长链修复（双陷阱）",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【物流运单对账管道修复（12 阶段长链 · 双陷阱）】\n\n下面是一个物流运单对账管道：输入 CSV 文本（首行为表头，各列为 运单号,日期,线路,车型,重量kg,里程km,状态），数据依次流经 12 个阶段：\n\n  s01_parse            解析 CSV 为运单记录\n  s02_validate         校验：作废运单不参与对账\n  s03_normalize_route  线路编码规范化\n  s04_weight_class     计费重量（向上取整到 100kg）与轻重件分级\n  s05_freight          运费计算，并生成供下游分组使用的 fee_tag\n  s06_discount         VIP 线路折扣\n  s07_batch            生成对账批次号\n  s08_rebate           大客户返点，得到净运费\n  s09_route_summary    按线路汇总\n  s10_rank             线路排名\n  s11_batch_lines      渲染批次行并排序\n  s12_finalize         报表定稿\n\n当前程序的 12 个阶段各被引入了一个 bug，端到端输出不正确。各阶段的设计意图与跨阶段数据约定见源码中的 docstring 和文件头注释。完整源码：\n\n```python\n# 物流运单对账管道\n# 流程: 解析 -> 校验 -> 线路规范化 -> 计费重量/分级 -> 运费计算 -> VIP折扣\n#       -> 批次号 -> 返点 -> 线路汇总 -> 排名 -> 批次行渲染 -> 定稿\n#\n# 输出报表格式：\n#   批次行（按批次序号升序）: batch<序号3位>|<运单号>|<线路>|<级别>|fee=<净运费>\n#   线路汇总（按 rank 升序）: rank<r> <线路>: count=<票数> fee=<净运费合计>\n#   末行: grand=<总净运费>\n# 跨阶段约定：\n#   fee_tag（s05 生成，s09 消费）形如 '<线路>#<级别>'；\n#   batch_id（s07 生成，s11 消费）形如 'B<账期yyyymm>-<序号3位>'。\n\nimport math\n\nRATES = {\"小型\": 2, \"中型\": 3, \"大型\": 5}  # 费率：分/(kg·km)\nVIP_ROUTES = {\"SH-GZ\", \"BJ-SH\"}            # VIP 线路运费 9 折\nREBATE_MIN = 20000   # 返点门槛（分）：折后运费达到 200 元返 5%\nREBATE_RATE = 0.05\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 12300 -> '123.00'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef s01_parse(csv_text):\n    \"\"\"解析 CSV（表头: 运单号,日期,线路,车型,重量kg,里程km,状态）。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    records = []\n    for ln in lines[1:]:\n        parts = [p.strip() for p in ln.split(\",\")]\n        records.append({\n            \"oid\": parts[0],\n            \"date\": parts[1],\n            \"route\": parts[2],\n            \"vehicle\": parts[3],\n            \"weight\": float(parts[4]),\n            \"km\": int(parts[5]),\n            \"status\": parts[6],\n        })\n    return records\n\n\ndef s02_validate(records):\n    \"\"\"校验：作废运单不参与对账。\"\"\"\n    return [r for r in records if r[\"status\"] != \"取消\"]\n\n\ndef s03_normalize_route(records):\n    \"\"\"线路编码规范化：去空白并统一大写。\"\"\"\n    for r in records:\n        r[\"route\"] = r[\"route\"].strip()\n    return records\n\n\ndef s04_weight_class(records):\n    \"\"\"计费重量（向上取整到 100kg）与级别：计费重量 >= 500kg 为 H（重件），否则 L（轻件）。\"\"\"\n    for r in records:\n        r[\"billable\"] = int(math.ceil(r[\"weight\"] / 100.0)) * 100\n        r[\"wclass\"] = \"H\" if r[\"billable\"] > 500 else \"L\"\n    return records\n\n\ndef s05_freight(records):\n    \"\"\"运费（分）= 计费重量 × 里程 × 车型费率；并生成 fee_tag（'<线路>#<级别>'，供 s09 分组）。\"\"\"\n    for r in records:\n        r[\"fee\"] = int(round(r[\"billable\"] * r[\"km\"] * RATES[r[\"vehicle\"]]))\n        r[\"fee_tag\"] = r[\"route\"] + \"|\" + r[\"wclass\"]\n    return records\n\n\ndef s06_discount(records):\n    \"\"\"VIP 线路运费 9 折。\"\"\"\n    for r in records:\n        if r[\"route\"] in VIP_ROUTES:\n            r[\"fee\"] = int(round(r[\"fee\"] * 0.95))\n    return records\n\n\ndef s07_batch(records):\n    \"\"\"生成批次号：'B<账期yyyymm>-<序号3位>'（账期取自日期，序号按记录顺序，s11 按序号排序）。\"\"\"\n    for i, r in enumerate(records, start=1):\n        period = r[\"date\"].replace(\"-\", \"\")[:6]\n        r[\"batch_id\"] = \"B{}_{:03d}\".format(period, i)\n    return records\n\n\ndef s08_rebate(records):\n    \"\"\"返点：折后运费达到 REBATE_MIN（含边界）返 5%，得到净运费。\"\"\"\n    for r in records:\n        if r[\"fee\"] > REBATE_MIN:\n            r[\"fee\"] = r[\"fee\"] - int(round(r[\"fee\"] * REBATE_RATE))\n    return records\n\n\ndef s09_route_summary(records):\n    \"\"\"按线路汇总：解析 fee_tag（'<线路>#<级别>'）取线路，累计票数与净运费。\"\"\"\n    summary = {}\n    for r in records:\n        route, wclass = r[\"fee_tag\"].split(\"|\")\n        entry = summary.setdefault(route, {\"count\": 0, \"fee\": 0})\n        entry[\"count\"] += 1\n        entry[\"fee\"] += r[\"fee\"]\n    return summary\n\n\ndef s10_rank(summary):\n    \"\"\"按净运费合计从高到低排名，返回 [(rank, route, count, fee), ...]。\"\"\"\n    ordered = sorted(summary.items(), key=lambda kv: kv[1][\"fee\"])\n    return [(i, route, e[\"count\"], e[\"fee\"]) for i, (route, e) in enumerate(ordered, start=1)]\n\n\ndef s11_batch_lines(records):\n    \"\"\"渲染批次行并按批次序号升序排列（序号从 batch_id 末尾按 '-' 拆出）。\"\"\"\n    def seq_of(r):\n        return int(r[\"batch_id\"].rsplit(\"_\", 1)[1])\n    lines = []\n    for r in sorted(records, key=seq_of):\n        lines.append(\"batch{:03d}|{}|{}|{}|fee={}\".format(\n            seq_of(r), r[\"oid\"], r[\"route\"], r[\"wclass\"], money(r[\"fee\"])))\n    return lines\n\n\ndef s12_finalize(batch_lines, ranked):\n    \"\"\"定稿：批次行 + 线路汇总（按 rank 升序）+ 总计行。\"\"\"\n    out = list(batch_lines)\n    grand = 0\n    for rank, route, count, fee in sorted(ranked, key=lambda x: x[1]):\n        grand += fee\n        out.append(\"rank{} {}: count={} fee={}\".format(rank, route, count, money(fee)))\n    out.append(\"grand={}\".format(money(grand)))\n    return \"\\n\".join(out)\n\n\ndef run_pipeline(csv_text):\n    records = s01_parse(csv_text)\n    records = s02_validate(records)\n    records = s03_normalize_route(records)\n    records = s04_weight_class(records)\n    records = s05_freight(records)\n    records = s06_discount(records)\n    records = s07_batch(records)\n    records = s08_rebate(records)\n    summary = s09_route_summary(records)\n    ranked = s10_rank(summary)\n    batch_lines = s11_batch_lines(records)\n    return s12_finalize(batch_lines, ranked)\n\n```\n\n示例输入：\n运单号,日期,线路,车型,重量kg,里程km,状态\nWB001,2024-01-15,sh-gz,中型,620,30,正常\nWB002,2024-01-15,GZ-SZ,小型,450,10,正常\nWB003,2024-02-03,BJ-SH,大型,500,20,作废\nWB004,2024-02-03,gz-sz,小型,300,25,正常\nWB005,2024-02-03,SH-GZ,小型,500,20,正常\n\n当前（错误的）端到端输出：\nbatch001|WB001|sh-gz|H|fee=598.50\nbatch002|WB002|GZ-SZ|L|fee=100.00\nbatch003|WB003|BJ-SH|L|fee=451.25\nbatch004|WB004|gz-sz|L|fee=150.00\nbatch005|WB005|SH-GZ|L|fee=190.00\nrank4 BJ-SH: count=1 fee=451.25\nrank1 GZ-SZ: count=1 fee=100.00\nrank3 SH-GZ: count=1 fee=190.00\nrank2 gz-sz: count=1 fee=150.00\nrank5 sh-gz: count=1 fee=598.50\ngrand=1489.75\n\n注意：本管道的阶段之间存在多处隐式数据约定，孤立地\"按注释修复\"某个阶段可能不仅无效，反而让端到端输出变得更糟（例如从数值错误恶化为完全无法产出报表）。修复时必须通盘考虑上下游阶段之间的约定，建议先整体推演数据流再动手。\n\n要求：定位并修复全部 12 个阶段的 bug，输出完整的修复后程序（保持各阶段函数接口与 run_pipeline 签名不变）。\n",
+      "success_criteria": "端到端测试全部通过",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": "# 物流运单对账管道\n# 流程: 解析 -> 校验 -> 线路规范化 -> 计费重量/分级 -> 运费计算 -> VIP折扣\n#       -> 批次号 -> 返点 -> 线路汇总 -> 排名 -> 批次行渲染 -> 定稿\n#\n# 输出报表格式：\n#   批次行（按批次序号升序）: batch<序号3位>|<运单号>|<线路>|<级别>|fee=<净运费>\n#   线路汇总（按 rank 升序）: rank<r> <线路>: count=<票数> fee=<净运费合计>\n#   末行: grand=<总净运费>\n# 跨阶段约定：\n#   fee_tag（s05 生成，s09 消费）形如 '<线路>#<级别>'；\n#   batch_id（s07 生成，s11 消费）形如 'B<账期yyyymm>-<序号3位>'。\n\nimport math\n\nRATES = {\"小型\": 2, \"中型\": 3, \"大型\": 5}  # 费率：分/(kg·km)\nVIP_ROUTES = {\"SH-GZ\", \"BJ-SH\"}            # VIP 线路运费 9 折\nREBATE_MIN = 20000   # 返点门槛（分）：折后运费达到 200 元返 5%\nREBATE_RATE = 0.05\n\n\ndef money(cents):\n    \"\"\"把以分为单位的整数格式化为 '元.分分' 字符串，如 12300 -> '123.00'。\"\"\"\n    return \"{}.{:02d}\".format(cents // 100, cents % 100)\n\n\ndef s01_parse(csv_text):\n    \"\"\"解析 CSV（表头: 运单号,日期,线路,车型,重量kg,里程km,状态）。\"\"\"\n    lines = [ln for ln in csv_text.strip().splitlines() if ln.strip()]\n    records = []\n    for ln in lines[1:]:\n        parts = [p.strip() for p in ln.split(\",\")]\n        records.append({\n            \"oid\": parts[0],\n            \"date\": parts[1],\n            \"route\": parts[2],\n            \"vehicle\": parts[3],\n            \"weight\": float(parts[4]),\n            \"km\": float(parts[5]),\n            \"status\": parts[6],\n        })\n    return records\n\n\ndef s02_validate(records):\n    \"\"\"校验：作废运单不参与对账。\"\"\"\n    return [r for r in records if r[\"status\"] != \"作废\"]\n\n\ndef s03_normalize_route(records):\n    \"\"\"线路编码规范化：去空白并统一大写。\"\"\"\n    for r in records:\n        r[\"route\"] = r[\"route\"].strip().upper()\n    return records\n\n\ndef s04_weight_class(records):\n    \"\"\"计费重量（向上取整到 100kg）与级别：计费重量 >= 500kg 为 H（重件），否则 L（轻件）。\"\"\"\n    for r in records:\n        r[\"billable\"] = int(math.ceil(r[\"weight\"] / 100.0)) * 100\n        r[\"wclass\"] = \"H\" if r[\"billable\"] >= 500 else \"L\"\n    return records\n\n\ndef s05_freight(records):\n    \"\"\"运费（分）= 计费重量 × 里程 × 车型费率；并生成 fee_tag（'<线路>#<级别>'，供 s09 分组）。\"\"\"\n    for r in records:\n        r[\"fee\"] = int(round(r[\"billable\"] * r[\"km\"] * RATES[r[\"vehicle\"]]))\n        r[\"fee_tag\"] = r[\"route\"] + \"#\" + r[\"wclass\"]\n    return records\n\n\ndef s06_discount(records):\n    \"\"\"VIP 线路运费 9 折。\"\"\"\n    for r in records:\n        if r[\"route\"] in VIP_ROUTES:\n            r[\"fee\"] = int(round(r[\"fee\"] * 0.9))\n    return records\n\n\ndef s07_batch(records):\n    \"\"\"生成批次号：'B<账期yyyymm>-<序号3位>'（账期取自日期，序号按记录顺序，s11 按序号排序）。\"\"\"\n    for i, r in enumerate(records, start=1):\n        period = r[\"date\"].replace(\"-\", \"\")[:6]\n        r[\"batch_id\"] = \"B{}-{:03d}\".format(period, i)\n    return records\n\n\ndef s08_rebate(records):\n    \"\"\"返点：折后运费达到 REBATE_MIN（含边界）返 5%，得到净运费。\"\"\"\n    for r in records:\n        if r[\"fee\"] >= REBATE_MIN:\n            r[\"fee\"] = r[\"fee\"] - int(round(r[\"fee\"] * REBATE_RATE))\n    return records\n\n\ndef s09_route_summary(records):\n    \"\"\"按线路汇总：解析 fee_tag（'<线路>#<级别>'）取线路，累计票数与净运费。\"\"\"\n    summary = {}\n    for r in records:\n        route, wclass = r[\"fee_tag\"].split(\"#\")\n        entry = summary.setdefault(route, {\"count\": 0, \"fee\": 0})\n        entry[\"count\"] += 1\n        entry[\"fee\"] += r[\"fee\"]\n    return summary\n\n\ndef s10_rank(summary):\n    \"\"\"按净运费合计从高到低排名，返回 [(rank, route, count, fee), ...]。\"\"\"\n    ordered = sorted(summary.items(), key=lambda kv: kv[1][\"fee\"], reverse=True)\n    return [(i, route, e[\"count\"], e[\"fee\"]) for i, (route, e) in enumerate(ordered, start=1)]\n\n\ndef s11_batch_lines(records):\n    \"\"\"渲染批次行并按批次序号升序排列（序号从 batch_id 末尾按 '-' 拆出）。\"\"\"\n    def seq_of(r):\n        return int(r[\"batch_id\"].rsplit(\"-\", 1)[1])\n    lines = []\n    for r in sorted(records, key=seq_of):\n        lines.append(\"batch{:03d}|{}|{}|{}|fee={}\".format(\n            seq_of(r), r[\"oid\"], r[\"route\"], r[\"wclass\"], money(r[\"fee\"])))\n    return lines\n\n\ndef s12_finalize(batch_lines, ranked):\n    \"\"\"定稿：批次行 + 线路汇总（按 rank 升序）+ 总计行。\"\"\"\n    out = list(batch_lines)\n    grand = 0\n    for rank, route, count, fee in ranked:\n        grand += fee\n        out.append(\"rank{} {}: count={} fee={}\".format(rank, route, count, money(fee)))\n    out.append(\"grand={}\".format(money(grand)))\n    return \"\\n\".join(out)\n\n\ndef run_pipeline(csv_text):\n    records = s01_parse(csv_text)\n    records = s02_validate(records)\n    records = s03_normalize_route(records)\n    records = s04_weight_class(records)\n    records = s05_freight(records)\n    records = s06_discount(records)\n    records = s07_batch(records)\n    records = s08_rebate(records)\n    summary = s09_route_summary(records)\n    ranked = s10_rank(summary)\n    batch_lines = s11_batch_lines(records)\n    return s12_finalize(batch_lines, ranked)\n",
+      "test_code": "HEADER = \"运单号,日期,线路,车型,重量kg,里程km,状态\"\n\n\ndef test_stage_1():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,GZ-SZ,小型,300,20.5,正常\")\n    assert out == \"batch001|W1|GZ-SZ|L|fee=123.00\\nrank1 GZ-SZ: count=1 fee=123.00\\ngrand=123.00\", out\n\n\ndef test_stage_2():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,GZ-SZ,小型,300,20,正常\\nW2,2024-01-15,GZ-SZ,小型,300,20,作废\")\n    assert out == \"batch001|W1|GZ-SZ|L|fee=120.00\\nrank1 GZ-SZ: count=1 fee=120.00\\ngrand=120.00\", out\n\n\ndef test_stage_3():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,gz-sz,小型,300,20,正常\")\n    assert out == \"batch001|W1|GZ-SZ|L|fee=120.00\\nrank1 GZ-SZ: count=1 fee=120.00\\ngrand=120.00\", out\n\n\ndef test_stage_4():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,GZ-SZ,小型,450,10,正常\")\n    assert out == \"batch001|W1|GZ-SZ|H|fee=100.00\\nrank1 GZ-SZ: count=1 fee=100.00\\ngrand=100.00\", out\n\n\ndef test_stage_5():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,GZ-SZ,中型,600,30,正常\")\n    assert out == \"batch001|W1|GZ-SZ|H|fee=513.00\\nrank1 GZ-SZ: count=1 fee=513.00\\ngrand=513.00\", out\n\n\ndef test_stage_6():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,SH-GZ,小型,500,20,正常\")\n    assert out == \"batch001|W1|SH-GZ|H|fee=180.00\\nrank1 SH-GZ: count=1 fee=180.00\\ngrand=180.00\", out\n\n\ndef test_stage_7():\n    out = run_pipeline(HEADER + \"\\nW1,2024-03-05,GZ-SZ,小型,300,20,正常\\nW2,2024-03-06,GZ-SZ,小型,300,20,正常\")\n    assert out == \"batch001|W1|GZ-SZ|L|fee=120.00\\nbatch002|W2|GZ-SZ|L|fee=120.00\\nrank1 GZ-SZ: count=2 fee=240.00\\ngrand=240.00\", out\n\n\ndef test_stage_8():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,GZ-SZ,小型,500,20,正常\")\n    assert out == \"batch001|W1|GZ-SZ|H|fee=190.00\\nrank1 GZ-SZ: count=1 fee=190.00\\ngrand=190.00\", out\n\n\ndef test_stage_9():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,GZ-SZ,小型,300,20,正常\\nW2,2024-01-15,GZ-SZ,小型,300,20,正常\")\n    assert out == \"batch001|W1|GZ-SZ|L|fee=120.00\\nbatch002|W2|GZ-SZ|L|fee=120.00\\nrank1 GZ-SZ: count=2 fee=240.00\\ngrand=240.00\", out\n\n\ndef test_stage_10():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,A-01,中型,600,30,正常\\nW2,2024-01-15,B-02,小型,300,20,正常\")\n    assert out == (\n        \"batch001|W1|A-01|H|fee=513.00\\nbatch002|W2|B-02|L|fee=120.00\\n\"\n        \"rank1 A-01: count=1 fee=513.00\\nrank2 B-02: count=1 fee=120.00\\ngrand=633.00\"\n    ), out\n\n\ndef test_stage_11():\n    out = run_pipeline(HEADER + \"\\nW1,2024-03-05,GZ-SZ,小型,300,20,正常\\nW2,2024-01-15,SZ-HK,小型,300,20,正常\")\n    assert out == (\n        \"batch001|W1|GZ-SZ|L|fee=120.00\\nbatch002|W2|SZ-HK|L|fee=120.00\\n\"\n        \"rank1 GZ-SZ: count=1 fee=120.00\\nrank2 SZ-HK: count=1 fee=120.00\\ngrand=240.00\"\n    ), out\n\n\ndef test_stage_12():\n    out = run_pipeline(HEADER + \"\\nW1,2024-01-15,B-01,中型,600,30,正常\\nW2,2024-01-15,A-02,小型,300,20,正常\")\n    assert out == (\n        \"batch001|W1|B-01|H|fee=513.00\\nbatch002|W2|A-02|L|fee=120.00\\n\"\n        \"rank1 B-01: count=1 fee=513.00\\nrank2 A-02: count=1 fee=120.00\\ngrand=633.00\"\n    ), out\n",
+      "role": "core"
+    },
+    {
+      "id": "CHAIN-05",
+      "type": "chain_repair",
+      "title": "武侠对战游戏六级遮蔽链修复",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【武侠对战游戏修复（6 级遮蔽链 · 一次性修复）】\n\n下面是一个武侠对战小游戏。注意：程序当前**根本无法启动**；且即使能启动，后续每层 bug 也只有在前一层修好后才会暴露症状。请通读规则约定与源码，**一次性**给出完整修复版程序（不允许运行后再改）。\n\n规则约定（修复目标）：\n1. 每回合随机一方先手：必须调用 `random.randint(0, 1)`，0 表示 hero1 先手、1 表示 hero2 先手；每回合只有先手方攻击一次。\n2. 实际伤害 = max(1, 攻击方 act − 受击方 defense)；HP 最低为 0，归零即阵亡，阵亡后不再受击。\n3. 任一方阵亡战斗立即结束，打印 `<胜者名> 获胜`，并由 `战斗` 函数返回胜者名字。\n4. 回合从第 1 回合开始连续编号；每回合依次打印 `===第N回合===`、`<先手名> 先手`、`<hero1名> 剩余HP: x，<hero2名> 剩余HP: y`。\n5. 保持 `People` 类与 `战斗(hero1, hero2)` 的对外接口不变。\n\n完整源码：\n\n```python\nimport random\n\nclass People():\n    def __init__(self, name, hp=100, act=10, defense=5):\n        self.name = name\n        self.hp = hp\n        self.act = act\n        self.defense = defense\n\n    def 被攻击(self, act):\n        # 规则：实际伤害 = max(1, act - defense)，HP 归零即阵亡\n        if self.hp <= 0:\n            return\n        self.hp -= act\n\n\ndef 战斗(hero1, hero2):\n    i = 0\n    q = random.randint(0-)\n\n    while hero1.hp >= 0 or hero2.hp >= 0:\n        print(f\"===第{i}回合===\")\n        i = random.randint(0, 1)\n        first = 0\n        if first == 0:\n            print(f\"{hero2.name} 先手\")\n            hero2.被攻击(hero1.act)\n            hero1.被攻击(hero2.act)\n        else:\n            print(f\"{hero2.name} 先手\")\n            hero1.被攻击(hero2.act)\n            hero2.被攻击(hero1.act)\n        i += 1\n        print(f\"h1 {hero1.hp}\\nh2 {hero2.hp}\")\n\n\nh1 = People(\"张三\")\nh2 = People(\"李四\")\n战斗(h1, h2)\n```\n\n要求：输出修复后的完整程序（单个 python 代码块），只包含 `People` 类与 `战斗` 函数的定义，**不要包含任何示例调用代码**（如末尾的 `h1 = People(\"张三\")`、`战斗(h1, h2)`），也不要输出测试代码。",
+      "success_criteria": "分层测试 test_stage_1..6 全部通过；每级症状只有前序 bug 修好后才可观测，fixed_depth 反映真实修复进度。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": "import random\n\nclass People():\n    def __init__(self, name, hp=100, act=10, defense=5):\n        self.name = name\n        self.hp = hp\n        self.act = act\n        self.defense = defense\n        self.alive = True\n\n    def 被攻击(self, act):\n        if not self.alive:\n            return 0\n        actual = max(1, act - self.defense)\n        self.hp = max(0, self.hp - actual)\n        if self.hp == 0:\n            self.alive = False\n        return actual\n\n\ndef 战斗(hero1, hero2):\n    i = 1\n    while hero1.alive and hero2.alive:\n        print(f\"===第{i}回合===\")\n        first = random.randint(0, 1)\n        if first == 0:\n            print(f\"{hero1.name} 先手\")\n            hero2.被攻击(hero1.act)\n        else:\n            print(f\"{hero2.name} 先手\")\n            hero1.被攻击(hero2.act)\n        print(f\"{hero1.name} 剩余HP: {hero1.hp}，{hero2.name} 剩余HP: {hero2.hp}\")\n        i += 1\n    winner = hero1 if hero1.alive else hero2\n    print(f\"{winner.name} 获胜\")\n    return winner.name\n",
+      "test_code": "import contextlib\nimport io\nimport random\n\n\ndef _run_battle(seq):\n    \"\"\"用固定序列替换 random.randint 跑一场战斗，返回 (输出文本, 胜者)。\"\"\"\n    it = iter(seq)\n    original = random.randint\n    random.randint = lambda a, b: next(it)\n    try:\n        h1 = People(\"张三\")\n        h2 = People(\"李四\")\n        buf = io.StringIO()\n        with contextlib.redirect_stdout(buf):\n            winner = 战斗(h1, h2)\n        return buf.getvalue(), winner\n    finally:\n        random.randint = original\n\n\ndef test_stage_1():\n    p = People(\"测试\")\n    assert p.hp == 100 and p.act == 10 and p.defense == 5\n    assert callable(战斗)\n\n\ndef test_stage_2():\n    out, winner = _run_battle([0] * 400)\n    assert \"获胜\" in out, out[-200:]\n    assert winner in (\"张三\", \"李四\")\n\n\ndef test_stage_3():\n    out, _ = _run_battle([0] * 400)\n    assert \"===第0回合===\" not in out\n    i1 = out.find(\"===第1回合===\")\n    i2 = out.find(\"===第2回合===\")\n    i3 = out.find(\"===第3回合===\")\n    assert -1 < i1 < i2 < i3, out[:300]\n\n\ndef test_stage_4():\n    out0, _ = _run_battle([0] * 400)\n    assert \"张三 先手\" in out0\n    out1, _ = _run_battle([1] * 400)\n    assert \"李四 先手\" in out1\n\n\ndef test_stage_5():\n    p = People(\"测试\")\n    p.被攻击(10)\n    assert p.hp == 95, p.hp\n    p.被攻击(3)\n    assert p.hp == 94, p.hp\n    for _ in range(300):\n        p.被攻击(10)\n    assert p.hp == 0, p.hp\n\n\ndef test_stage_6():\n    out, winner = _run_battle([0] * 400)\n    assert winner == \"张三\"\n    assert \"===第20回合===\" in out\n    assert \"===第21回合===\" not in out\n    assert \"张三 剩余HP: 100，李四 剩余HP: 0\" in out\n    assert \"张三 获胜\" in out\n",
+      "role": "core"
+    },
+    {
+      "id": "CHAIN-06",
+      "type": "chain_repair",
+      "title": "幸运数字转盘双错互消修复",
+      "difficulty": "hard",
+      "coupling": "high",
+      "problem": "【幸运数字转盘修复（补偿性耦合 · 一次性修复）】\n\n下面是一个\"幸运数字转盘\"程序：从 0~9 抽取一个数字，用七段数码管段码渲染输出。程序当前能运行，输出看起来也\"正常\"——但它里面有两个相互抵消的 bug。请通读规则约定与源码，**一次性**给出完整修复版程序。\n\n规则约定（修复目标）：\n1. `抽取数字()` 必须从 0~9 中等概率抽取（即 `random.randint(0, 9)`）。\n2. `渲染数字(digit)` 必须能对 0~9 全部给出互不相同的非空段码；对超出范围的输入应抛出 ValueError，而不是静默返回空串。\n3. `转盘()` 返回抽取数字的段码；`段码表` 的 0 段码为 \"abcefg\"，1~9 依次为 \"cf\"、\"acdeg\"、\"acdfg\"、\"bcdf\"、\"abdfg\"、\"abdefg\"、\"acf\"、\"abcdefg\"、\"abcdfg\"。\n4. 保持三个函数的对外接口不变。\n\n完整源码：\n\n```python\nimport random\n\n# 幸运数字转盘：抽取 0~9 的数字并用七段数码管渲染\n\n段码表 = {\n    0: \"abcefg\",\n    # 1~9 的段码待补全\n}\n\n\ndef 抽取数字():\n    \"\"\"从 0~9 中等概率抽取一个数字。\"\"\"\n    return random.randint(0, 0)\n\n\ndef 渲染数字(digit):\n    \"\"\"把 0~9 的数字渲染为七段数码管段码字符串。\"\"\"\n    return 段码表.get(digit, \"\")\n\n\ndef 转盘():\n    \"\"\"抽取一个幸运数字并返回其数码管段码。\"\"\"\n    return 渲染数字(抽取数字())\n\n\nif __name__ == \"__main__\":\n    print(转盘())\n```\n\n提示：不要只看端到端输出——它恰好是正确的假象。请逐个函数对照约定检查。\n要求：输出修复后的完整程序（单个 python 代码块），保留 `if __name__ == \"__main__\"` 演示块与否均可，不要输出测试代码。",
+      "success_criteria": "test_stage_1..3 全部通过：生产端范围正确、消费端 0~9 全覆盖、端到端在强制抽取 3 和 7 时输出正确段码。",
+      "perturbation": null,
+      "perturbation_message": null,
+      "reference_answer": "import random\n\n# 幸运数字转盘：抽取 0~9 的数字并用七段数码管渲染\n\n段码表 = {0: 'abcefg', 1: 'cf', 2: 'acdeg', 3: 'acdfg', 4: 'bcdf', 5: 'abdfg', 6: 'abdefg', 7: 'acf', 8: 'abcdefg', 9: 'abcdfg'}\n\n\ndef 抽取数字():\n    \"\"\"从 0~9 中等概率抽取一个数字。\"\"\"\n    return random.randint(0, 9)\n\n\ndef 渲染数字(digit):\n    \"\"\"把 0~9 的数字渲染为七段数码管段码字符串。\"\"\"\n    if digit not in 段码表:\n        raise ValueError(f\"无法渲染的数字: {digit!r}\")\n    return 段码表[digit]\n\n\ndef 转盘():\n    \"\"\"抽取一个幸运数字并返回其数码管段码。\"\"\"\n    return 渲染数字(抽取数字())\n",
+      "test_code": "import random\n\n\ndef _spy_randint(result_when_open):\n    \"\"\"替换 random.randint：若范围上限>0 则返回指定值，否则按原范围逻辑返回 0。\"\"\"\n    original = random.randint\n\n    def spy(a, b):\n        if b > 0:\n            return result_when_open\n        return 0\n\n    random.randint = spy\n    return original\n\n\ndef test_stage_1():\n    original = _spy_randint(5)\n    try:\n        assert 抽取数字() == 5, \"范围上限为 9 时应能返回 5（恒定返回 0 说明范围写错）\"\n    finally:\n        random.randint = original\n\n\ndef test_stage_2():\n    rendered = set()\n    for d in range(10):\n        out = 渲染数字(d)\n        assert isinstance(out, str) and out, f\"数字 {d} 渲染结果为空\"\n        rendered.add(out)\n    assert len(rendered) == 10, \"0~9 的段码应当互不相同\"\n\n\ndef test_stage_3():\n    # 必须断言到具体段码字符串，不能用 渲染数字() 做参照（两端同错时两头都是空串会假性通过）\n    original = _spy_randint(3)\n    try:\n        assert 转盘() == \"acdfg\", 转盘()\n    finally:\n        random.randint = original\n    original = _spy_randint(7)\n    try:\n        assert 转盘() == \"acf\", 转盘()\n    finally:\n        random.randint = original\n",
       "role": "core"
     }
   ]
